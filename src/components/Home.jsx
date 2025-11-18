@@ -1,0 +1,63 @@
+import { Link as RouterLink } from 'react-router';
+import {
+  Button,
+  Typography,
+  Box,
+  Paper,
+  Stack,
+} from '@mui/material';
+import DatasetIcon from '@mui/icons-material/Dataset';
+import ApiIcon from '@mui/icons-material/Api';
+
+import Layout from './Layout';
+
+/**
+ * Home page component with a simple counter example
+ *
+ * @returns {React.ReactElement} Home page content
+ */
+const Home = () => (
+  <Layout>
+    <Paper elevation={1} sx={{ p: 4, textAlign: 'center' }}>
+      <Box sx={{ mt: 4, pt: 4, borderTop: 1, borderColor: 'divider' }}>
+        <Typography variant="h6" gutterBottom>
+          Démonstrations
+        </Typography>
+        <Stack direction="row" spacing={2} justifyContent="center" sx={{ mb: 2 }}>
+          <Box textAlign="center">
+            <Button
+              component={RouterLink}
+              to="/dataset-selector"
+              variant="outlined"
+              color="primary"
+              size="large"
+              startIcon={<DatasetIcon />}
+            >
+              Sélecteur de jeux de données
+            </Button>
+            <Typography variant="caption" display="block" sx={{ mt: 1 }} color="text.secondary">
+              Testez différents modes de sélection
+            </Typography>
+          </Box>
+          <Box textAlign="center">
+            <Button
+              component={RouterLink}
+              to="/api-demo"
+              variant="contained"
+              color="primary"
+              size="large"
+              startIcon={<ApiIcon />}
+            >
+              Démonstrations API
+            </Button>
+            <Typography variant="caption" display="block" sx={{ mt: 1 }} color="text.secondary">
+              Patterns de requêtes, calculs et cache
+            </Typography>
+          </Box>
+        </Stack>
+      </Box>
+    </Paper>
+  </Layout>
+);
+
+export default Home;

@@ -22,8 +22,11 @@
     "@tanstack/react-query": "^5.90.12",
     "@vitejs/plugin-react": "^5.1.2",
     "@vitejs/plugin-react-swc": "^4.2.2",
+    "maplibre-gl": "^5.14.0",
+    "pmtiles": "^4.3.0",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
+    "react-map-gl": "^8.1.0",
     "react-router": "^7.10.1",
     "vite": "^7.2.7"
   },

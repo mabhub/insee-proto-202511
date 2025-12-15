@@ -8,6 +8,8 @@ import {
 } from '@mui/material';
 import DatasetIcon from '@mui/icons-material/Dataset';
 import ApiIcon from '@mui/icons-material/Api';
+import MapIcon from '@mui/icons-material/Map';
+import LayersIcon from '@mui/icons-material/Layers';
 
 import Layout from './Layout';
 
@@ -23,7 +25,7 @@ const Home = () => (
         <Typography variant="h6" gutterBottom>
           Démonstrations
         </Typography>
-        <Stack direction="row" spacing={2} justifyContent="center" sx={{ mb: 2 }}>
+        <Stack direction="row" spacing={2} justifyContent="center" sx={{ mb: 2 }} flexWrap="wrap">
           <Box textAlign="center">
             <Button
               component={RouterLink}
@@ -43,7 +45,7 @@ const Home = () => (
             <Button
               component={RouterLink}
               to="/api-demo"
-              variant="contained"
+              variant="outlined"
               color="primary"
               size="large"
               startIcon={<ApiIcon />}
@@ -52,6 +54,36 @@ const Home = () => (
             </Button>
             <Typography variant="caption" display="block" sx={{ mt: 1 }} color="text.secondary">
               Patterns de requêtes, calculs et cache
+            </Typography>
+          </Box>
+          <Box textAlign="center">
+            <Button
+              component={RouterLink}
+              to="/map-demo"
+              variant="contained"
+              color="primary"
+              size="large"
+              startIcon={<MapIcon />}
+            >
+              Cartographie
+            </Button>
+            <Typography variant="caption" display="block" sx={{ mt: 1 }} color="text.secondary">
+              Visualisation géographique des données
+            </Typography>
+          </Box>
+          <Box textAlign="center">
+            <Button
+              component={RouterLink}
+              to="/map-demo-static"
+              variant="outlined"
+              color="secondary"
+              size="large"
+              startIcon={<LayersIcon />}
+            >
+              Carte statique
+            </Button>
+            <Typography variant="caption" display="block" sx={{ mt: 1 }} color="text.secondary">
+              Démo simple avec données fictives
             </Typography>
           </Box>
         </Stack>

@@ -36,7 +36,7 @@ const MapDemoStatic = () => {
   const [viewState, setViewState] = useState({
     longitude: 2.3522,
     latitude: 46.603354,
-    zoom: 5,
+    zoom: 4,
   });
 
   // Ensure PMTiles protocol is registered
@@ -86,7 +86,7 @@ const MapDemoStatic = () => {
           renderInput={(params) => (
             <TextField
               {...params}
-              label="Sélectionner un jeu de données"
+              label="Sélectionner un indicateur"
               variant="outlined"
               helperText={selectedDataset?.description}
               InputProps={{

@@ -4,11 +4,12 @@ import { Source, Layer } from 'react-map-gl/maplibre';
  * Map layers component
  * Renders EPCI boundaries and data visualization
  */
-const MapLayersCarteFacile = ({ dataLookup, colorStops, hasData }) => (
+const MapLayersCarteFacile = ({ lineOpacity, lineColor = '#666' }) => (
   <Source
     id="geo-source"
     type="vector"
     url="pmtiles:///epci.pmtiles"
+    attribution='Insee'
   >
     {/* Border layer */}
     <Layer
@@ -16,9 +17,18 @@ const MapLayersCarteFacile = ({ dataLookup, colorStops, hasData }) => (
       source-layer="epci_contour"
       type="line"
       paint={{
-        'line-color': '#666',
+        'line-color': lineColor,
         'line-width': 1,
-        'line-opacity': 1,
+        'line-opacity': lineOpacity,
+      }}
+    />
+    {/* Fill layer */}
+    <Layer
+      id="epci-fill"
+      source-layer="epci_contour"
+      type="fill"
+      paint={{
+        'fill-opacity': 0,
       }}
     />
   </Source>

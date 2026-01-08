@@ -21,6 +21,10 @@ import { useStaticDatasets, useStaticMapData } from '../hooks/useStaticData';
 import MapLayers from './MapLayers';
 import MapLegend from './MapLegend';
 
+// ign carte facile
+import { mapStyles } from 'carte-facile';
+import 'carte-facile/carte-facile.css';
+
 // Register PMTiles protocol
 const protocol = new Protocol();
 maplibregl.addProtocol('pmtiles', protocol.tile);
@@ -115,7 +119,7 @@ const MapDemoIgnCarteFacile = () => {
           {...viewState}
           onMove={evt => setViewState(evt.viewState)}
           style={{ width: '100%', height: '100%' }}
-          mapStyle="https://basemaps.cartocdn.com/gl/positron-gl-style/style.json"
+          mapStyle={mapStyles.desaturated}
           interactiveLayerIds={['epci-background', 'epci-data']}
         >
           <MapLayers

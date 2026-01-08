@@ -90,6 +90,7 @@ const MapDemoIgnCarteFacile = () => {
           <Autocomplete
             options={indicators}
             getOptionLabel={(option) => option.title}
+            groupBy={(option) => option.theme}
             value={selectedIndicator}
             onChange={(event, newValue) => setSelectedIndicator(newValue)}
             loading={isLoading}
@@ -98,7 +99,7 @@ const MapDemoIgnCarteFacile = () => {
                 {...params}
                 label="Sélectionner un indicateur"
                 variant="outlined"
-                //helperText={selectedIndicator?.title}
+                helperText={selectedIndicator?.title}
                 InputProps={{
                   ...params.InputProps,
                   endAdornment: (
@@ -112,6 +113,7 @@ const MapDemoIgnCarteFacile = () => {
             )}
             sx={{ maxWidth: 600 }}
           />
+          
         </Paper>
 
         <Paper elevation={2} sx={{ flex: 2, position: 'relative', overflow: 'hidden', minHeight: 500 }}>

@@ -11,6 +11,7 @@ import {
   TextField,
   CircularProgress,
   Alert,
+  Link,
 } from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home';
 import maplibregl from 'maplibre-gl';
@@ -40,7 +41,7 @@ const MapDemoIgnCarteFacile = () => {
   const [viewState, setViewState] = useState({
     longitude: 2.3522,
     latitude: 46.603354,
-    zoom: 4,
+    zoom: 4.5,
   });
 
   // Ensure PMTiles protocol is registered
@@ -72,72 +73,72 @@ const MapDemoIgnCarteFacile = () => {
         </Button>
       </Box>
 
-      <Paper elevation={1} sx={{ p: 3, mb: 2 }}>
-        <Typography variant="h4" component="h1" gutterBottom>
-          Démonstration cartographique (données statiques)
-        </Typography>
-        <Typography variant="body1" color="text.secondary" paragraph>
-          Visualisez des données fictives sur une carte interactive. Cette démo illustre le
-          fonctionnement de l'interaction entre le sélecteur et le rendu cartographique.
-        </Typography>
-
-        <Autocomplete
-          options={datasets}
-          getOptionLabel={(option) => option.title}
-          value={selectedDataset}
-          onChange={(event, newValue) => setSelectedDataset(newValue)}
-          loading={isLoading}
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              label="Sélectionner un indicateur"
-              variant="outlined"
-              helperText={selectedDataset?.description}
-              InputProps={{
-                ...params.InputProps,
-                endAdornment: (
-                  <>
-                    {isLoading ? <CircularProgress color="inherit" size={20} /> : null}
-                    {params.InputProps.endAdornment}
-                  </>
-                ),
-              }}
-            />
-          )}
-          sx={{ maxWidth: 600 }}
-        />
-      </Paper>
-
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>
           Erreur lors du chargement des données : {error.message}
         </Alert>
       )}
 
-      <Paper elevation={2} sx={{ flexGrow: 1, position: 'relative', overflow: 'hidden', minHeight: 500 }}>
-        <MapGL
-          {...viewState}
-          onMove={evt => setViewState(evt.viewState)}
-          style={{ width: '100%', height: '100%' }}
-          mapStyle={mapStyles.desaturated}
-          interactiveLayerIds={['epci-background', 'epci-data']}
-        >
-          <MapLayers
-            dataLookup={dataLookup}
-            colorStops={colorStops}
-            hasData={hasData}
+      <Box sx={{ display: 'flex', flexDirection: 'row', height: '100vh' }}>
+        <Paper elevation={1} sx={{ flex: 1, maxWidth: '40%', p: 3, mb: 2 }}>
+          <Typography variant="h4" component="h1" gutterBottom>
+            Carte interactive
+          </Typography>
+          <Typography variant="body1" color="text.secondary" paragraph>
+            Carte maplibre sur la base du composant <Link href="https://fab-geocommuns.github.io/carte-facile-site/fr/" target='_blank'>carte facile de l'IGN</Link>
+          </Typography>
+          <Autocomplete
+            options={datasets}
+            getOptionLabel={(option) => option.title}
+            value={selectedDataset}
+            onChange={(event, newValue) => setSelectedDataset(newValue)}
+            loading={isLoading}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Sélectionner un indicateur"
+                variant="outlined"
+                helperText={selectedDataset?.description}
+                InputProps={{
+                  ...params.InputProps,
+                  endAdornment: (
+                    <>
+                      {isLoading ? <CircularProgress color="inherit" size={20} /> : null}
+                      {params.InputProps.endAdornment}
+                    </>
+                  ),
+                }}
+              />
+            )}
+            sx={{ maxWidth: 600 }}
           />
-        </MapGL>
+        </Paper>
 
-        {selectedDataset && hasData && (
-          <MapLegend
-            dataset={selectedDataset}
-            observationCount={dataLookup.size}
-            minValue={colorStops.min}
-            maxValue={colorStops.max}
-          />
-        )}
-      </Paper>
+        <Paper elevation={2} sx={{ flex: 2, position: 'relative', overflow: 'hidden', minHeight: 500 }}>
+          <MapGL
+            {...viewState}
+            onMove={evt => setViewState(evt.viewState)}
+            style={{ width: '100%', height: '100%' }}
+            mapStyle={mapStyles.desaturated}
+            interactiveLayerIds={['epci-background', 'epci-data']}
+          >
+            <MapLayers
+              dataLookup={dataLookup}
+              colorStops={colorStops}
+              hasData={hasData}
+            />
+          </MapGL>
+
+          {selectedDataset && hasData && (
+            <MapLegend
+              dataset={selectedDataset}
+              observationCount={dataLookup.size}
+              minValue={colorStops.min}
+              maxValue={colorStops.max}
+            />
+          )}
+        </Paper>
+      </Box>
     </Container>
   );
 };

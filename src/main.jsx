@@ -30,12 +30,14 @@ const ThemeWrapper = () => {
 
   const theme = React.useMemo(() => responsiveFontSizes(createTheme({
     palette: {
-      mode: prefersDarkMode ? 'dark' : 'light',
+      // Test pour coller à https://vite-insee-starter.demo-domain.ovh/
+      mode: 'dark',
+      //mode: prefersDarkMode ? 'dark' : 'light',
       primary: {
-        main: '#adb31b',
+        main: "#6A6AF4",
       },
       secondary: {
-        main: '#ff6b35',
+        main: "#FFC403",
       },
     },
     typography: {

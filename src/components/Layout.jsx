@@ -25,11 +25,11 @@ const Layout = ({ children, footer = true }) => (
     <AppBar position="static" color="primary" elevation={1}>
       <Toolbar>
         <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-          {import.meta.env.VITE_APP_TITLE || 'Vite React MUI'}
+          {import.meta.env.VITE_APP_TITLE || 'Bac à sable carto melodi'}
         </Typography>
         <IconButton
           color="inherit"
-          href="https://github.com"
+          href="https://github.com/mabhub/insee-proto-202511"
           target="_blank"
           rel="noopener noreferrer"
           aria-label="GitHub repository"

@@ -31,6 +31,35 @@ export const useStaticDatasets = () => {
 };
 
 /**
+ * Hook to fetch static demo data from JSON file
+ * Loads fictional geographic datasets from /demo-data.json for demonstration purposes
+ * 
+ * @returns {Object} React Query result object
+ * @returns {Object} returns.data - Parsed JSON containing datasets array
+ * @returns {Array} returns.data.datasets - Array of dataset objects with id, title, description, data
+ * @returns {boolean} returns.isLoading - Loading state
+ * @returns {Error} returns.error - Error object if fetch failed
+ * 
+ * @example
+ * const { data, isLoading, error } = useStaticDatasets();
+ * const datasets = data?.datasets || [];
+ * // datasets: [{id: 'population-fictive', title: '...', data: {...}}]
+ */
+export const useStaticIndicators = () => {
+  return useQuery({
+    queryKey: ['static-indicators'],
+    queryFn: async () => {
+      const response = await fetch('/indicators.json');
+      if (!response.ok) {
+        throw new Error('Failed to load demo data');
+      }
+      return response.json();
+    },
+    staleTime: Infinity, // Static data never becomes stale
+  });
+};
+
+/**
  * Hook to transform static dataset into map-ready format
  * Converts static data object into Map structure with color stops for visualization
  * 

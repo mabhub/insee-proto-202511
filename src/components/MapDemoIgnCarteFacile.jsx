@@ -18,7 +18,7 @@ import maplibregl from 'maplibre-gl';
 import { Protocol } from 'pmtiles';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
-import { useStaticDatasets, useStaticMapData } from '../hooks/useStaticData';
+import { useStaticIndicators, useStaticMapData } from '../hooks/useStaticData';
 import MapLayers from './MapLayers';
 import MapLegend from './MapLegend';
 
@@ -37,7 +37,7 @@ maplibregl.addProtocol('pmtiles', protocol.tile);
  * @returns {React.ReactElement} Static map demo page
  */
 const MapDemoIgnCarteFacile = () => {
-  const [selectedDataset, setSelectedDataset] = useState(null);
+  const [selectedIndicator, setSelectedIndicator] = useState(null);
   const [viewState, setViewState] = useState({
     longitude: 2.3522,
     latitude: 46.603354,
@@ -51,14 +51,14 @@ const MapDemoIgnCarteFacile = () => {
     return () => maplibregl.removeProtocol('pmtiles');
   }, []);
 
-  // Fetch static datasets
-  const { data: staticData, isLoading, error } = useStaticDatasets();
-  const datasets = staticData?.datasets || [];
+  // Fetch static indicators
+  const { data: staticData, isLoading, error } = useStaticIndicators();
+  const indicators = staticData?.indicators || [];
 
   // Transform data for map visualization
-  const { dataLookup, colorStops } = useStaticMapData(selectedDataset);
+  const { dataLookup, colorStops } = useStaticMapData(selectedIndicator);
 
-  const hasData = selectedDataset && dataLookup.size > 0 && colorStops;
+  const hasData = selectedIndicator && dataLookup.size > 0 && colorStops;
 
   return (
     <Container maxWidth="xl" sx={{ py: 4, height: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -88,17 +88,17 @@ const MapDemoIgnCarteFacile = () => {
             Carte maplibre sur la base du composant <Link href="https://fab-geocommuns.github.io/carte-facile-site/fr/" target='_blank'>carte facile de l'IGN</Link>
           </Typography>
           <Autocomplete
-            options={datasets}
+            options={indicators}
             getOptionLabel={(option) => option.title}
-            value={selectedDataset}
-            onChange={(event, newValue) => setSelectedDataset(newValue)}
+            value={selectedIndicator}
+            onChange={(event, newValue) => setSelectedIndicator(newValue)}
             loading={isLoading}
             renderInput={(params) => (
               <TextField
                 {...params}
                 label="Sélectionner un indicateur"
                 variant="outlined"
-                helperText={selectedDataset?.description}
+                //helperText={selectedIndicator?.title}
                 InputProps={{
                   ...params.InputProps,
                   endAdornment: (
@@ -129,9 +129,9 @@ const MapDemoIgnCarteFacile = () => {
             />
           </MapGL>
 
-          {selectedDataset && hasData && (
+          {selectedIndicator && hasData && (
             <MapLegend
-              dataset={selectedDataset}
+              dataset={selectedIndicator}
               observationCount={dataLookup.size}
               minValue={colorStops.min}
               maxValue={colorStops.max}

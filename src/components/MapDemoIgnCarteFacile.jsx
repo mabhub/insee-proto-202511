@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link as RouterLink } from 'react-router';
-import { Map as MapGL } from 'react-map-gl/maplibre';
+import { Map as MapGL, useControl } from 'react-map-gl/maplibre';
 import {
   Container,
   Typography,
@@ -25,10 +25,17 @@ import MapLegend from './MapLegend';
 // ign carte facile
 import { mapStyles } from 'carte-facile';
 import 'carte-facile/carte-facile.css';
+import { MapSelectorControl } from 'carte-facile';
 
 // Register PMTiles protocol
 const protocol = new Protocol();
 maplibregl.addProtocol('pmtiles', protocol.tile);
+
+function MyMapSelectorControl() {
+  useControl(() => new MapSelectorControl(), {});
+
+  return null;
+}
 
 /**
  * Static map demo component
@@ -124,6 +131,7 @@ const MapDemoIgnCarteFacile = () => {
             mapStyle={mapStyles.desaturated}
             interactiveLayerIds={['epci-background', 'epci-data']}
           >
+            <MyMapSelectorControl/>
             <MapLayers
               dataLookup={dataLookup}
               colorStops={colorStops}

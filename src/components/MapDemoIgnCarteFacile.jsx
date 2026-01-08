@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link as RouterLink } from 'react-router';
-import { Map as MapGL, useControl } from 'react-map-gl/maplibre';
+import { FullscreenControl, GeolocateControl, Map as MapGL, NavigationControl, ScaleControl, useControl } from 'react-map-gl/maplibre';
 import {
   Container,
   Typography,
@@ -82,7 +82,7 @@ const MapDemoIgnCarteFacile = () => {
       )}
 
       <Box sx={{ display: 'flex', flexDirection: 'row', height: '100vh' }}>
-        <Paper elevation={1} sx={{ flex: 1, maxWidth: '40%', p: 3, mb: 2 }}>
+        <Paper elevation={1} sx={{ flex: 1, maxWidth: '40%', p: 3, m: 1 }}>
           <Typography variant="h4" component="h1" gutterBottom>
             Carte interactive
           </Typography>
@@ -118,15 +118,20 @@ const MapDemoIgnCarteFacile = () => {
           
         </Paper>
 
-        <Paper elevation={2} sx={{ flex: 2, position: 'relative', overflow: 'hidden', minHeight: 500 }}>
+        <Paper elevation={2} sx={{ flex: 2, position: 'relative', overflow: 'hidden', minHeight: 500, m: 1 }}>
           <MapGL
             {...viewState}
             onMove={evt => setViewState(evt.viewState)}
             style={{ width: '100%', height: '100%' }}
-            mapStyle={mapStyles.desaturated}
+            mapStyle={mapStyles.desaturated}            
+            mapOptions={{ hash: true }}
             interactiveLayerIds={['epci-background', 'epci-data']}
           >
             <MyMapSelectorControl/>
+            <GeolocateControl/>
+            <FullscreenControl/>
+            <NavigationControl/>
+            <ScaleControl/>
             <MapLayers/>
           </MapGL>
 

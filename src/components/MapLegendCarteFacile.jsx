@@ -27,7 +27,7 @@ const MapLegendCarteFacile = ({ indicator }) => (
     sx={{
       position: 'absolute',
       top: 16,
-      right: 16,
+      left: 16,
       p: 2,
       maxWidth: 300,
       bgcolor: 'background.paper',

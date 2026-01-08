@@ -29,7 +29,6 @@ const MapLegendCarteFacile = ({ indicator }) => (
       top: 16,
       left: 16,
       p: 2,
-      maxWidth: 300,
       bgcolor: 'background.paper',
     }}
   >
@@ -37,7 +36,7 @@ const MapLegendCarteFacile = ({ indicator }) => (
       {getIndicatorTitle(indicator)}
     </Typography>
     <Typography variant="body2" color="text.secondary" gutterBottom>
-      ... territoires
+      <i>Légende</i>
     </Typography>
   </Paper>
 );

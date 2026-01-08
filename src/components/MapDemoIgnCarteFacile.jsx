@@ -12,6 +12,10 @@ import {
   CircularProgress,
   Alert,
   Link,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
 } from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home';
 import maplibregl from 'maplibre-gl';
@@ -19,7 +23,7 @@ import { Protocol } from 'pmtiles';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
 import { useStaticIndicators, useStaticMapData } from '../hooks/useStaticData';
-import MapLayers from './MapLayers';
+import MapLayersCarteFacile from './MapLayersCarteFacile';
 import MapLegendCarteFacile from './MapLegendCarteFacile';
 
 // ign carte facile
@@ -89,6 +93,8 @@ const MapDemoIgnCarteFacile = () => {
           <Typography variant="body1" color="text.secondary" paragraph>
             Carte maplibre sur la base du composant <Link href="https://fab-geocommuns.github.io/carte-facile-site/fr/" target='_blank'>carte facile de l'IGN</Link>
           </Typography>
+          
+          <FormControl fullWidth sx={{ mb: 2 }}>
           <Autocomplete
             options={indicators}
             getOptionLabel={(option) => option.title}
@@ -101,7 +107,7 @@ const MapDemoIgnCarteFacile = () => {
                 {...params}
                 label="Sélectionner un indicateur"
                 variant="outlined"
-                helperText={selectedIndicator?.title}
+                //helperText={selectedIndicator?.title}
                 InputProps={{
                   ...params.InputProps,
                   endAdornment: (
@@ -115,7 +121,17 @@ const MapDemoIgnCarteFacile = () => {
             )}
             sx={{ maxWidth: 600 }}
           />
+          </FormControl>
           
+          <FormControl fullWidth sx={{ mb: 2 }}>
+            <InputLabel>Niveau géographique</InputLabel>
+            <Select
+              defaultValue="epci"
+              label="Niveau géographique"
+            >
+              <MenuItem value={"epci"}>Intercommunalité</MenuItem>
+            </Select>
+          </FormControl>
         </Paper>
 
         <Paper elevation={2} sx={{ flex: 2, position: 'relative', overflow: 'hidden', minHeight: 500, m: 1 }}>
@@ -123,16 +139,16 @@ const MapDemoIgnCarteFacile = () => {
             {...viewState}
             onMove={evt => setViewState(evt.viewState)}
             style={{ width: '100%', height: '100%' }}
-            mapStyle={mapStyles.desaturated}            
+            mapStyle={mapStyles.desaturated}
+            //TODO ne fonctionne pas, à faire à la main?
             mapOptions={{ hash: true }}
-            interactiveLayerIds={['epci-background', 'epci-data']}
           >
-            <MyMapSelectorControl/>
-            <GeolocateControl/>
-            <FullscreenControl/>
-            <NavigationControl/>
-            <ScaleControl/>
-            <MapLayers/>
+            <MyMapSelectorControl />
+            <GeolocateControl />
+            <FullscreenControl />
+            <NavigationControl />
+            <ScaleControl />
+            <MapLayersCarteFacile />
           </MapGL>
 
           {selectedIndicator && (

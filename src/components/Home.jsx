@@ -86,6 +86,21 @@ const Home = () => (
               Démo simple avec données fictives
             </Typography>
           </Box>
+          <Box textAlign="center">
+            <Button
+              component={RouterLink}
+              to="/map-demo-ign-cartefacile"
+              variant="outlined"
+              color="secondary"
+              size="large"
+              startIcon={<LayersIcon />}
+            >
+              Carte IGN (carte facile)
+            </Button>
+            <Typography variant="caption" display="block" sx={{ mt: 1 }} color="text.secondary">
+              Démo utilisation composant carte facile
+            </Typography>
+          </Box>
         </Stack>
       </Box>
     </Paper>

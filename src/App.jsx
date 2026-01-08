@@ -9,6 +9,7 @@ import DatasetSelector from './components/DatasetSelector';
 import ApiDemo from './components/ApiDemo';
 import MapDemo from './components/MapDemo';
 import MapDemoStatic from './components/MapDemoStatic';
+import MapDemoIgnCarteFacile from './components/MapDemoIgnCarteFacile';
 
 const App = () => (
   <BrowserRouter>
@@ -18,6 +19,7 @@ const App = () => (
       <Route path="/api-demo" element={<ApiDemo />} />
       <Route path="/map-demo" element={<MapDemo />} />
       <Route path="/map-demo-static" element={<MapDemoStatic />} />
+      <Route path="/map-demo-ign-cartefacile" element={<MapDemoIgnCarteFacile />} />
     </Routes>
   </BrowserRouter>
 );

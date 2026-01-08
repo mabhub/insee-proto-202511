@@ -20,7 +20,7 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 
 import { useStaticIndicators, useStaticMapData } from '../hooks/useStaticData';
 import MapLayers from './MapLayers';
-import MapLegend from './MapLegend';
+import MapLegendCarteFacile from './MapLegendCarteFacile';
 
 // ign carte facile
 import { mapStyles } from 'carte-facile';
@@ -32,7 +32,7 @@ const protocol = new Protocol();
 maplibregl.addProtocol('pmtiles', protocol.tile);
 
 function MyMapSelectorControl() {
-  useControl(() => new MapSelectorControl(), {});
+  useControl(() => new MapSelectorControl());
 
   return null;
 }
@@ -61,11 +61,6 @@ const MapDemoIgnCarteFacile = () => {
   // Fetch static indicators
   const { data: staticData, isLoading, error } = useStaticIndicators();
   const indicators = staticData?.indicators || [];
-
-  // Transform data for map visualization
-  const { dataLookup, colorStops } = useStaticMapData(selectedIndicator);
-
-  const hasData = selectedIndicator && dataLookup.size > 0 && colorStops;
 
   return (
     <Container maxWidth="xl" sx={{ py: 4, height: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -132,19 +127,12 @@ const MapDemoIgnCarteFacile = () => {
             interactiveLayerIds={['epci-background', 'epci-data']}
           >
             <MyMapSelectorControl/>
-            <MapLayers
-              dataLookup={dataLookup}
-              colorStops={colorStops}
-              hasData={hasData}
-            />
+            <MapLayers/>
           </MapGL>
 
-          {selectedIndicator && hasData && (
-            <MapLegend
-              dataset={selectedIndicator}
-              observationCount={dataLookup.size}
-              minValue={colorStops.min}
-              maxValue={colorStops.max}
+          {selectedIndicator && (
+            <MapLegendCarteFacile
+              indicator={selectedIndicator}
             />
           )}
         </Paper>

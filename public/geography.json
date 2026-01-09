@@ -2,8 +2,13 @@
   "geography": [
     {
       "id": "epci",
-      "title": "Intercommunalités",
+      "title": "Intercommunalité",
       "id_contour": "epci_contour"
+    },
+    {
+      "id": "dep",
+      "title": "Département",
+      "id_contour": "dep_contour"
     }
   ]
 }

@@ -10,7 +10,6 @@ import {
   Autocomplete,
   TextField,
   CircularProgress,
-  Alert,
   Link,
   Select,
   MenuItem,
@@ -31,6 +30,7 @@ import MapLegendCarteFacile from './MapLegendCarteFacile';
 import { mapStyles } from 'carte-facile';
 import 'carte-facile/carte-facile.css';
 import { MapSelectorControl } from 'carte-facile';
+import MapLegendGeographyCarteFacile from './MapLegendGeographyCarteFacile';
 
 // Register PMTiles protocol
 const protocol = new Protocol();
@@ -209,9 +209,11 @@ const MapDemoIgnCarteFacile = () => {
               indicator={selectedIndicator}
             />
           )}
+
+            <MapLegendGeographyCarteFacile/>
         </Paper>
       </Box>
-    </Container>    
+    </Container>
   );
 };
 

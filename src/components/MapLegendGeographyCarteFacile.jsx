@@ -1,4 +1,5 @@
 import { Paper, Typography, Box } from '@mui/material';
+import { getGeographyTitle } from '../helpers/geographyHelpers';
 
 /**
  * Map legend component
@@ -20,7 +21,7 @@ import { Paper, Typography, Box } from '@mui/material';
  *   maxValue={7115576}
  * />
  */
-const MapLegendGeographyCarteFacile = ({}) => (
+const MapLegendGeographyCarteFacile = ({ geography }) => (
   <Paper
     elevation={1}
     sx={{
@@ -34,7 +35,7 @@ const MapLegendGeographyCarteFacile = ({}) => (
     }}
   >
     <Typography variant="subtitle2" fontWeight="bold" gutterBottom>
-      France par Niveau géographique (XXXX)
+      { geography }
     </Typography>
   </Paper>
 );

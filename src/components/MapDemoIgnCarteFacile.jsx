@@ -22,7 +22,7 @@ import maplibregl from 'maplibre-gl';
 import { Protocol } from 'pmtiles';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
-import { useStaticIndicators, useStaticMapData } from '../hooks/useStaticData';
+import { useStaticGeographies, useStaticIndicators } from '../hooks/useStaticData';
 import MapLayersCarteFacile from './MapLayersCarteFacile';
 import MapLegendCarteFacile from './MapLegendCarteFacile';
 
@@ -50,6 +50,7 @@ function MyMapSelectorControl() {
  */
 const MapDemoIgnCarteFacile = () => {
   const [selectedIndicator, setSelectedIndicator] = useState(null);
+  const [selectedGeography, setSelectedGeography] = useState(null);
   const [selectedOpacity, setSelectedOpacity] = useState(0.8);
   const mapRef = useRef(null);
   const [popupInfo, setPopupInfo] = useState(null);
@@ -69,6 +70,10 @@ const MapDemoIgnCarteFacile = () => {
   // Fetch static indicators
   const { data: staticData, isLoading, error } = useStaticIndicators();
   const indicators = staticData?.indicators || [];
+
+  // Fetch geography
+  const { data: staticGeo } = useStaticGeographies();
+  const geographies = staticGeo?.geography || [];
 
   const handleClick = (evt) => {
     if (!mapRef.current) return;
@@ -145,10 +150,15 @@ const MapDemoIgnCarteFacile = () => {
           <FormControl fullWidth sx={{ mb: 2 }}>
             <InputLabel>Niveau géographique</InputLabel>
             <Select
-              defaultValue="epci"
               label="Niveau géographique"
+              value={selectedGeography}
+              onChange={(event, newValue) => setSelectedGeography(newValue)}
             >
-              <MenuItem value={"epci"}>Intercommunalité</MenuItem>
+              {geographies.map((geo) => (
+              <MenuItem key={geo.id} value={geo.id}>
+                {geo.title}
+              </MenuItem>
+            ))}
             </Select>
           </FormControl>
           
@@ -210,7 +220,11 @@ const MapDemoIgnCarteFacile = () => {
             />
           )}
 
-            <MapLegendGeographyCarteFacile/>
+          {selectedGeography && (
+            <MapLegendGeographyCarteFacile
+              geography={selectedGeography}
+            />
+          )}
         </Paper>
       </Box>
     </Container>

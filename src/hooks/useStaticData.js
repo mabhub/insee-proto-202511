@@ -59,6 +59,21 @@ export const useStaticIndicators = () => {
   });
 };
 
+
+export const useStaticGeographies = () => {
+  return useQuery({
+    queryKey: ['static-geographies'],
+    queryFn: async () => {
+      const response = await fetch('/geography.json');
+      if (!response.ok) {
+        throw new Error('Failed to load demo data');
+      }
+      return response.json();
+    },
+    staleTime: Infinity, // Static data never becomes stale
+  });
+};
+
 /**
  * Hook to transform static dataset into map-ready format
  * Converts static data object into Map structure with color stops for visualization

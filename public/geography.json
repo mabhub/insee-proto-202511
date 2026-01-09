@@ -1,6 +1,11 @@
 {
   "geography": [
     {
+      "id": "com",
+      "title": "Commune",
+      "id_contour": "com_contour"
+    },
+    {
       "id": "epci",
       "title": "Intercommunalité",
       "id_contour": "epci_contour"
@@ -9,6 +14,11 @@
       "id": "dep",
       "title": "Département",
       "id_contour": "dep_contour"
+    },
+    {
+      "id": "france",
+      "title": "France",
+      "id_contour": "france_contour"
     }
   ]
 }

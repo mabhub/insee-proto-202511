@@ -35,7 +35,7 @@ const MapLegendGeographyCarteFacile = ({ geography }) => (
     }}
   >
     <Typography variant="subtitle2" fontWeight="bold" gutterBottom>
-      { geography }
+      Niveau géographique : { geography }
     </Typography>
   </Paper>
 );

@@ -16,6 +16,10 @@ import {
   FormControl,
   InputLabel,
   Slider,
+  FormControlLabel,
+  Checkbox,
+  FormGroup,
+  FormLabel,
 } from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home';
 import maplibregl from 'maplibre-gl';
@@ -80,7 +84,7 @@ const MapDemoIgnCarteFacile = () => {
 
     // Récupère les features sous le curseur
     const features = mapRef.current.queryRenderedFeatures(evt.point, {
-      layers: ['epci-fill'],
+      layers: ['epci-fill', 'com-fill', 'france-fill', 'dep-fill'],
     });
 
     if (features.length > 0) {
@@ -115,57 +119,69 @@ const MapDemoIgnCarteFacile = () => {
             Carte réactive maplibre
           </Typography>
           <Typography variant="body1" color="text.secondary" paragraph>
-            Prototype expérimentation réactivité et utilisation de <Link href="https://fab-geocommuns.github.io/carte-facile-site/fr/" target='_blank'>carte facile de l'IGN</Link>
+            Expérimentation réactivité et utilisation de <Link href="https://fab-geocommuns.github.io/carte-facile-site/fr/" target='_blank'>carte facile de l'IGN</Link>
           </Typography>
-          
+
           <FormControl fullWidth sx={{ mb: 2 }}>
-          <Autocomplete
-            options={indicators}
-            getOptionLabel={(option) => option.title}
-            groupBy={(option) => option.theme}
-            value={selectedIndicator}
-            onChange={(event, newValue) => setSelectedIndicator(newValue)}
-            loading={isLoading}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Sélectionner un indicateur"
-                variant="outlined"
-                //helperText={selectedIndicator?.title}
-                InputProps={{
-                  ...params.InputProps,
-                  endAdornment: (
-                    <>
-                      {isLoading ? <CircularProgress color="inherit" size={20} /> : null}
-                      {params.InputProps.endAdornment}
-                    </>
-                  ),
-                }}
-              />
-            )}
-            sx={{ maxWidth: 600 }}
-          />
+            <Autocomplete
+              options={indicators}
+              getOptionLabel={(option) => option.title}
+              groupBy={(option) => option.theme}
+              value={selectedIndicator}
+              onChange={(event, newValue) => setSelectedIndicator(newValue)}
+              loading={isLoading}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Sélectionner un indicateur"
+                  variant="outlined"
+                  //helperText={selectedIndicator?.title}
+                  InputProps={{
+                    ...params.InputProps,
+                    endAdornment: (
+                      <>
+                        {isLoading ? <CircularProgress color="inherit" size={20} /> : null}
+                        {params.InputProps.endAdornment}
+                      </>
+                    ),
+                  }}
+                />
+              )}
+              sx={{ maxWidth: 600 }}
+            />
           </FormControl>
 
           <FormControl fullWidth sx={{ mb: 2 }}>
-            <InputLabel>Niveau géographique</InputLabel>
+            <InputLabel>Niveau géographique d'intérêt</InputLabel>
             <Select
-              label="Niveau géographique"
+              label="Niveau géographique d'intérêt"
               value={selectedGeography}
-              onChange={(event, newValue) => setSelectedGeography(newValue)}
+              // TODO ne fonctionne pas correctement : on ne peut pas récupérer "title" ensuite (?)
+              //onChange={(event, newValue) => setSelectedGeography(newValue)}
+              onChange={(event) => setSelectedGeography(event.target.value)}
             >
               {geographies.map((geo) => (
-              <MenuItem key={geo.id} value={geo.id}>
-                {geo.title}
-              </MenuItem>
-            ))}
+                <MenuItem key={geo.id} value={geo.id}>
+                  {geo.title}
+                </MenuItem>
+              ))}
             </Select>
           </FormControl>
-          
+
+          <FormControl fullWidth sx={{ 
+    border: '1px solid #ffffff71', // Trait fin noir en dessous
+    padding: '8px', // Espacement optionnel pour éviter que le contenu ne touche le trait
+           }} component="fieldset" variant="standard">
+            <FormLabel component="legend">Contours</FormLabel>
+            <FormGroup>
+              <FormControlLabel control={<Checkbox defaultChecked />} label="Commune" />
+              <FormControlLabel control={<Checkbox defaultChecked />} label="Intercommunalité" />
+              <FormControlLabel control={<Checkbox defaultChecked />} label="Département" />
+            </FormGroup>
           <FormControl fullWidth sx={{ mb: 2 }}>
-            <InputLabel>Opacité des contours</InputLabel>
+            <InputLabel>Opacité</InputLabel>
             <Slider
-              value={selectedOpacity} 
+              value={selectedOpacity}
               onChange={(event, newValue) => setSelectedOpacity(newValue)}
               step={0.1}
               marks
@@ -173,6 +189,8 @@ const MapDemoIgnCarteFacile = () => {
               max={1}
             />
           </FormControl>
+          </FormControl>
+
         </Paper>
 
         <Paper elevation={2} sx={{ flex: 2, position: 'relative', overflow: 'hidden', minHeight: 500, m: 1 }}>
@@ -194,24 +212,24 @@ const MapDemoIgnCarteFacile = () => {
             <MapLayersCarteFacile
               lineOpacity={selectedOpacity}
             />
-             {/* Popup */}
-      {popupInfo && (
-        <Popup
-          longitude={popupInfo.longitude}
-          latitude={popupInfo.latitude}
-          closeButton={true}
-          closeOnClick={false}
-          onClose={() => setPopupInfo(null)}
-          anchor="bottom"
-          style={{
-            color: '#333', // Texte foncé
-        }}
-        >
-          <Typography variant="subtitle2" fontWeight="bold" gutterBottom >
-            {popupInfo.properties.GEO_LIB}
-          </Typography>
-        </Popup>
-      )}
+            {/* Popup */}
+            {popupInfo && (
+              <Popup
+                longitude={popupInfo.longitude}
+                latitude={popupInfo.latitude}
+                closeButton={true}
+                closeOnClick={false}
+                onClose={() => setPopupInfo(null)}
+                anchor="bottom"
+                style={{
+                  color: '#333', // Texte foncé
+                }}
+              >
+                <Typography variant="subtitle2" fontWeight="bold" gutterBottom >
+                  {popupInfo.properties.GEO_LIB} ({popupInfo.properties.GEO})
+                </Typography>
+              </Popup>
+            )}
           </MapGL>
 
           {selectedIndicator && (

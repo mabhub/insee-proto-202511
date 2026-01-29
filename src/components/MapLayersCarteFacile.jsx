@@ -17,7 +17,7 @@ const MapLayersCarteFacile = ({ lineOpacity, lineColor = '#666' }) => (
       source-layer="com_contour"
       type="line"
       paint={{
-        'line-color': lineColor,
+        'line-color': '#413e3e',
         'line-width': 1,
         'line-opacity': lineOpacity,
       }}
@@ -37,7 +37,7 @@ const MapLayersCarteFacile = ({ lineOpacity, lineColor = '#666' }) => (
       source-layer="epci_contour"
       type="line"
       paint={{
-        'line-color': lineColor,
+        'line-color': '#1e21ce',
         'line-width': 2,
         'line-opacity': lineOpacity,
       }}
@@ -57,7 +57,7 @@ const MapLayersCarteFacile = ({ lineOpacity, lineColor = '#666' }) => (
       source-layer="dep_contour"
       type="line"
       paint={{
-        'line-color': lineColor,
+        'line-color': '#9e2222',
         'line-width': 3,
         'line-opacity': lineOpacity,
       }}
@@ -77,7 +77,7 @@ const MapLayersCarteFacile = ({ lineOpacity, lineColor = '#666' }) => (
       source-layer="france_contour"
       type="line"
       paint={{
-        'line-color': lineColor,
+        'line-color': '#0da100',
         'line-width': 4,
         'line-opacity': lineOpacity,
       }}

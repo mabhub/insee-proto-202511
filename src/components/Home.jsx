@@ -115,6 +115,20 @@ const Home = () => (
               Population par département (cercles)
             </Typography>
           </Box>
+          <Box textAlign="center">
+            <Button
+              component={RouterLink}
+              to="/map-demo-choropleth"
+              variant="outlined"
+              color="primary"
+              size="large"
+            >
+              Choroplèthe ratio 80+
+            </Button>
+            <Typography variant="caption" display="block" sx={{ mt: 1 }} color="text.secondary">
+              Part des 80 ans et plus par département
+            </Typography>
+          </Box>
         </Stack>
       </Box>
     </Paper>

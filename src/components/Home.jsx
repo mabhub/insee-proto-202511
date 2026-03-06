@@ -101,6 +101,20 @@ const Home = () => (
               Démo utilisation composant carte facile
             </Typography>
           </Box>
+          <Box textAlign="center">
+            <Button
+              component={RouterLink}
+              to="/map-demo-proportional"
+              variant="outlined"
+              color="primary"
+              size="large"
+            >
+              Ronds proportionnels
+            </Button>
+            <Typography variant="caption" display="block" sx={{ mt: 1 }} color="text.secondary">
+              Population par département (cercles)
+            </Typography>
+          </Box>
         </Stack>
       </Box>
     </Paper>

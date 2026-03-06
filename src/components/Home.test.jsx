@@ -1,66 +1,28 @@
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
-import { userEvent } from '@testing-library/user-event';
+import { MemoryRouter } from 'react-router';
 import Home from '../components/Home';
 
+const renderHome = () => render(<MemoryRouter><Home /></MemoryRouter>);
+
 describe('home component', () => {
-  it('renders the main heading', () => {
-    render(<Home />);
-    const heading = screen.getByRole('heading', { name: /Vite \+ React \+ MUI/i });
-    expect(heading).toBeInTheDocument();
+  it('renders the demonstrations heading', () => {
+    renderHome();
+    expect(screen.getByRole('heading', { name: /Démonstrations/i })).toBeInTheDocument();
   });
 
-  it('renders the counter button with initial count of 0', () => {
-    render(<Home />);
-    const counterButton = screen.getByRole('button', { name: /Compteur : 0/i });
-    expect(counterButton).toBeInTheDocument();
+  it('renders navigation links to demo pages', () => {
+    renderHome();
+    expect(screen.getByRole('link', { name: /Sélecteur de jeux de données/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Démonstrations API/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Cartographie/i })).toBeInTheDocument();
   });
 
-  it('increments counter when button is clicked', async () => {
-    const user = userEvent.setup();
-    render(<Home />);
-
-    const counterButton = screen.getByRole('button', { name: /Compteur : 0/i });
-    await user.click(counterButton);
-
-    expect(screen.getByRole('button', { name: /Compteur : 1/i })).toBeInTheDocument();
-  });
-
-  it('enables reset button when counter is greater than 0', async () => {
-    const user = userEvent.setup();
-    render(<Home />);
-
-    const resetButton = screen.getByRole('button', { name: /Reset/i });
-    expect(resetButton).toBeDisabled();
-
-    const counterButton = screen.getByRole('button', { name: /Compteur :/i });
-    await user.click(counterButton);
-
-    expect(resetButton).toBeEnabled();
-  });
-
-  it('resets counter to 0 when reset button is clicked', async () => {
-    const user = userEvent.setup();
-    render(<Home />);
-
-    const counterButton = screen.getByRole('button', { name: /Compteur :/i });
-    await user.click(counterButton);
-    await user.click(counterButton);
-
-    const resetButton = screen.getByRole('button', { name: /Reset/i });
-    await user.click(resetButton);
-
-    expect(screen.getByRole('button', { name: /Compteur : 0/i })).toBeInTheDocument();
-    expect(resetButton).toBeDisabled();
-  });
-
-  it('displays technology descriptions', () => {
-    render(<Home />);
-
-    expect(screen.getByText(/React 19 avec hooks modernes/i)).toBeInTheDocument();
-    expect(screen.getAllByText(/Material-UI v7/i).length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/TanStack Query v5/i).length).toBeGreaterThan(0);
-    expect(screen.getByText(/React Router v7 pour la navigation/i)).toBeInTheDocument();
-    expect(screen.getAllByText(/Vite 7/i).length).toBeGreaterThan(0);
+  it('renders map demo links', () => {
+    renderHome();
+    expect(screen.getByRole('link', { name: /Carte statique/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Carte IGN/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Ronds proportionnels/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Choroplèthe/i })).toBeInTheDocument();
   });
 });

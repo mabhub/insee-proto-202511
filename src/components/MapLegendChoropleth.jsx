@@ -21,7 +21,7 @@ const MapLegendChoropleth = ({ minValue, maxValue }) => {
   const breaks = Array.from({ length: 5 }, (_, i) => minValue + step * i);
 
   return (
-    <Paper elevation={3} sx={{ position: 'absolute', bottom: 32, right: 16, p: 2, minWidth: 180, zIndex: 1 }}>
+    <Paper elevation={3} sx={{ position: 'absolute', top: 10, left: 10, p: 2, minWidth: 180, zIndex: 1 }}>
       <Typography variant="subtitle2" fontWeight="bold" gutterBottom>
         Part des 80 ans et plus (2022)
       </Typography>

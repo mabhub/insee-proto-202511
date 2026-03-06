@@ -13,17 +13,20 @@ import { Paper, Typography, Box } from '@mui/material';
 const MapLegendProportional = ({ minValue, maxValue, territoryCount }) => (
   <Paper
     elevation={3}
-    sx={{ position: 'absolute', bottom: 40, right: 16, p: 2, minWidth: 160, zIndex: 1 }}
+    sx={{ position: 'absolute', top: 10, left: 10, p: 2, minWidth: 160, zIndex: 1 }}
   >
     <Typography variant="subtitle2" fontWeight="bold" gutterBottom>
-      Population 2022
+      Population municipale 2022
     </Typography>
     <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: 2, mb: 1 }}>
       <svg width="80" height="60" style={{ overflow: 'visible' }}>
         <circle cx="50" cy="45" r="4" fill="#268DFF" opacity={0.7} stroke="#fff" strokeWidth={1} />
         <circle cx="50" cy="30" r="20" fill="#268DFF" opacity={0.7} stroke="#fff" strokeWidth={1} />
         <text x="0" y="60" fontSize="10" fill="currentColor">
-          Min. : {minValue?.toLocaleString('fr-FR')} - Max. : {maxValue?.toLocaleString('fr-FR')}
+          Min. : {minValue?.toLocaleString('fr-FR')}
+        </text>
+        <text x="0" y="70" fontSize="10" fill="currentColor">
+          Max. : {maxValue?.toLocaleString('fr-FR')}
         </text>
       </svg>
     </Box>

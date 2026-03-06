@@ -36,6 +36,13 @@ const MapLayersProportional = ({ dataLookup, colorStops }) => {
           'circle-stroke-color': '#fff',
         }}
       />
+      {/* Contours fins */}
+      <Layer
+        id="dep-borders"
+        source-layer="dep_contour"
+        type="line"
+        paint={{ 'line-color': '#666', 'line-width': 0.8, 'line-opacity': 0.6 }}
+      />
     </Source>
   );
 };

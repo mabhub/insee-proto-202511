@@ -45,6 +45,42 @@ export const normalizeObservation = (obs, geoLabelsMap = null) => {
 };
 
 /**
+ * Calcule le ratio population 80+ / total en % par département.
+ *
+ * @param {Array} observations - Observations normalisées (avec AGE, GEO, OBS_VALUE, GEO_LIB)
+ * @returns {{ ratioLookup: Map<string, {value: number, label: string}>, ratioStops: {min: number, max: number}|null }}
+ */
+export const computeAgeRatio = (observations) => {
+  if (!observations?.length) return { ratioLookup: new Map(), ratioStops: null };
+
+  const totals = new Map();
+  const elders = new Map();
+
+  observations.forEach(obs => {
+    if (obs.AGE === '_T')     totals.set(obs.GEO, { value: obs.OBS_VALUE, label: obs.GEO_LIB });
+    if (obs.AGE === 'Y_GE80') elders.set(obs.GEO, { value: obs.OBS_VALUE, label: obs.GEO_LIB });
+  });
+
+  const ratioLookup = new Map();
+  totals.forEach(({ value: tot, label }, code) => {
+    const elder = elders.get(code);
+    if (elder && tot > 0) {
+      ratioLookup.set(code, {
+        value: +((elder.value / tot) * 100).toFixed(2),
+        label,
+      });
+    }
+  });
+
+  const values = [...ratioLookup.values()].map(d => d.value);
+  const ratioStops = ratioLookup.size
+    ? { min: Math.min(...values), max: Math.max(...values) }
+    : null;
+
+  return { ratioLookup, ratioStops };
+};
+
+/**
  * Normalize API response observations
  * @param {Object} response - API response
  * @param {Map<string, string>} geoLabelsMap - Optional map of GEO IDs to labels

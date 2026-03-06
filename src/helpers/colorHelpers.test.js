@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { interpolateColor, CHOROPLETH_COLORS, buildStepExpression } from './colorHelpers';
+import { interpolateColor, CHOROPLETH_COLORS, buildStepExpression, buildProportionalCircleExpression } from './colorHelpers';
 
 describe('interpolateColor', () => {
   it('returns the minimum color at ratio 0', () => {
@@ -107,5 +107,49 @@ describe('buildStepExpression', () => {
 
     const uniqueColors = new Set(assignedColors);
     expect(uniqueColors.size).toBeGreaterThan(1);
+  });
+});
+
+describe('buildProportionalCircleExpression', () => {
+  it('retourne minRadius si dataLookup est vide', () => {
+    expect(buildProportionalCircleExpression(new Map(), { min: 0, max: 100 })).toBe(4);
+  });
+
+  it('retourne minRadius si colorStops est null', () => {
+    const lookup = new Map([['01', { value: 50, label: 'Ain' }]]);
+    expect(buildProportionalCircleExpression(lookup, null)).toBe(4);
+  });
+
+  it('retourne minRadius personnalisé si passé en paramètre', () => {
+    expect(buildProportionalCircleExpression(new Map(), null, 8, 60)).toBe(8);
+  });
+
+  it('retourne une expression MapLibre avec "match" comme premier élément', () => {
+    const lookup = new Map([
+      ['01', { value: 0, label: 'Ain' }],
+      ['02', { value: 100, label: 'Aisne' }],
+    ]);
+    const result = buildProportionalCircleExpression(lookup, { min: 0, max: 100 });
+    expect(Array.isArray(result)).toBe(true);
+    expect(result[0]).toBe('match');
+  });
+
+  it('normalise linéairement : min → minRadius, max → maxRadius', () => {
+    const lookup = new Map([
+      ['01', { value: 0,   label: 'Min' }],
+      ['02', { value: 100, label: 'Max' }],
+    ]);
+    const result = buildProportionalCircleExpression(lookup, { min: 0, max: 100 }, 4, 40);
+
+    const idx01 = result.indexOf('01');
+    const idx02 = result.indexOf('02');
+    expect(result[idx01 + 1]).toBe(4);  // 0% → minRadius
+    expect(result[idx02 + 1]).toBe(40); // 100% → maxRadius
+  });
+
+  it('se termine par le rayon par défaut (minRadius)', () => {
+    const lookup = new Map([['01', { value: 50, label: 'Ain' }]]);
+    const result = buildProportionalCircleExpression(lookup, { min: 0, max: 100 });
+    expect(result[result.length - 1]).toBe(4);
   });
 });

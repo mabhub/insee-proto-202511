@@ -2,6 +2,30 @@
 // Utilitaires de couleur partagés entre les composants cartographiques
 
 /**
+ * Construit l'expression MapLibre `match` pour le rayon des cercles proportionnels.
+ * Le rayon est normalisé linéairement entre minRadius (valeur min) et maxRadius (valeur max).
+ *
+ * @param {Map<string, {value: number, label: string}>} dataLookup - Données par code court
+ * @param {{min: number, max: number}|null} colorStops - Bornes pour la normalisation
+ * @param {number} [minRadius=4] - Rayon minimal en pixels
+ * @param {number} [maxRadius=40] - Rayon maximal en pixels
+ * @returns {number|Array} Expression MapLibre ou rayon par défaut si pas de données
+ */
+export const buildProportionalCircleExpression = (dataLookup, colorStops, minRadius = 4, maxRadius = 40) => {
+  if (!dataLookup.size || !colorStops) return minRadius;
+
+  return [
+    'match',
+    ['to-string', ['get', 'GEO']],
+    ...Array.from(dataLookup.entries()).flatMap(([code, { value }]) => {
+      const ratio = (value - colorStops.min) / (colorStops.max - colorStops.min);
+      return [code, minRadius + ratio * (maxRadius - minRadius)];
+    }),
+    minRadius,
+  ];
+};
+
+/**
  * Interpole une couleur dans une rampe séquentielle rouge pâle → rouge sombre
  * pour une valeur normalisée entre 0 et 1.
  * Utilisé pour les choroplèthes à interpolation continue (ex. MapLayers.jsx).

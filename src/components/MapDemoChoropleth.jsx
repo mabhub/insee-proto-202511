@@ -1,6 +1,6 @@
 // src/components/MapDemoChoropleth.jsx
 // Page de démonstration : choroplèthe part des 80+ par département (2022)
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useRef, useMemo } from 'react';
 import { Link as RouterLink } from 'react-router';
 import {
   FullscreenControl,
@@ -22,13 +22,14 @@ import {
   Link,
 } from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home';
-import maplibregl from 'maplibre-gl';
-import { Protocol } from 'pmtiles';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { mapStyles, MapSelectorControl } from 'carte-facile';
 import 'carte-facile/carte-facile.css';
 
 import { useDataWithMultipleFilters } from '../hooks/useData';
+import { usePMTilesProtocol } from '../hooks/usePMTilesProtocol';
+import { computeAgeRatio } from '../helpers/dataHelpers';
+import { buildPopupInfo } from '../helpers/mapHelpers';
 import MapLayersChoropleth from './MapLayersChoropleth';
 import MapLegendChoropleth from './MapLegendChoropleth';
 
@@ -61,78 +62,21 @@ const MapDemoChoropleth = () => {
     zoom: 4.5,
   });
 
-  // Enregistrement du protocole PMTiles avec cleanup pour éviter les conflits
-  // si plusieurs pages cartographiques sont montées/démontées
-  useEffect(() => {
-    const protocol = new Protocol();
-    maplibregl.addProtocol('pmtiles', protocol.tile);
-    return () => maplibregl.removeProtocol('pmtiles');
-  }, []);
+  usePMTilesProtocol();
 
   // Une seule requête pour AGE=_T et AGE=Y_GE80
   const { data: rawData, isLoading, error } = useDataWithMultipleFilters(DATASET_ID, QUERY_PARAMS);
 
-  /**
-   * Calcul du ratio 80+ / total à partir d'une seule réponse multi-AGE.
-   *
-   * normalizeObservation garantit :
-   *   obs.GEO      = code court "56" (extrait de "2025-DEP-56")
-   *   obs.AGE      = code classe d'âge (spreadé depuis obs.dimensions)
-   *   obs.OBS_VALUE = valeur numérique (depuis measures.OBS_VALUE_NIVEAU.value)
-   *   obs.GEO_LIB  = libellé du département
-   */
-  const { ratioLookup, ratioStops } = useMemo(() => {
-    if (!rawData?.observations) return { ratioLookup: new Map(), ratioStops: null };
+  const { ratioLookup, ratioStops } = useMemo(
+    () => computeAgeRatio(rawData?.observations),
+    [rawData]
+  );
 
-    const totals = new Map();
-    const elders = new Map();
-
-    rawData.observations.forEach(obs => {
-      if (obs.AGE === '_T')     totals.set(obs.GEO, { value: obs.OBS_VALUE, label: obs.GEO_LIB });
-      if (obs.AGE === 'Y_GE80') elders.set(obs.GEO, { value: obs.OBS_VALUE, label: obs.GEO_LIB });
-    });
-
-    const ratioLookup = new Map();
-    totals.forEach(({ value: tot, label }, code) => {
-      const elder = elders.get(code);
-      if (elder && tot > 0) {
-        // Ratio en % avec 2 décimales
-        ratioLookup.set(code, {
-          value: +((elder.value / tot) * 100).toFixed(2),
-          label,
-        });
-      }
-    });
-
-    const values = [...ratioLookup.values()].map(d => d.value);
-    const ratioStops = ratioLookup.size
-      ? { min: Math.min(...values), max: Math.max(...values) }
-      : null;
-
-    return { ratioLookup, ratioStops };
-  }, [rawData]);
-
-  /**
-   * Au clic sur la carte, interroge les features de la layer de remplissage.
-   * La propriété GEO dans PMTiles est le code court (ex. "56").
-   */
   const handleClick = (evt) => {
     const features = mapRef.current?.queryRenderedFeatures(evt.point, {
       layers: ['dep-fill-data'],
     });
-    if (features?.length > 0) {
-      const props = features[0].properties;
-      const code = props.GEO;
-      const entry = ratioLookup.get(code);
-      setPopupInfo({
-        longitude: evt.lngLat.lng,
-        latitude: evt.lngLat.lat,
-        label: entry?.label || props.GEO_LIB || code,
-        value: entry?.value,
-      });
-    } else {
-      setPopupInfo(null);
-    }
+    setPopupInfo(buildPopupInfo(features, ratioLookup, evt.lngLat));
   };
 
   return (

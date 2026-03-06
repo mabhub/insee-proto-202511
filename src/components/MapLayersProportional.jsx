@@ -2,6 +2,7 @@
 // Layer cartographique : ronds proportionnels sur les centroïdes de département
 import { useMemo } from 'react';
 import { Source, Layer } from 'react-map-gl/maplibre';
+import { buildProportionalCircleExpression } from '../helpers/colorHelpers';
 
 /**
  * Affiche des cercles dont le rayon est proportionnel à la valeur de la donnée,
@@ -16,22 +17,10 @@ import { Source, Layer } from 'react-map-gl/maplibre';
  * @param {{min: number, max: number}|null} colorStops - Bornes pour la normalisation des rayons
  */
 const MapLayersProportional = ({ dataLookup, colorStops }) => {
-  // Construit l'expression MapLibre `match` pour le rayon des cercles
-  // Rayon entre MIN (petite valeur) et MAX (grande valeur) px
-  const radiusExpression = useMemo(() => {
-    if (!dataLookup.size || !colorStops) return 4;
-
-    const MIN = 4, MAX = 40;
-    return [
-      'match',
-      ['to-string', ['get', 'GEO']], // Propriété GEO dans PMTiles = code court "01"
-      ...Array.from(dataLookup.entries()).flatMap(([code, { value }]) => {
-        const ratio = (value - colorStops.min) / (colorStops.max - colorStops.min);
-        return [code, MIN + ratio * (MAX - MIN)];
-      }),
-      MIN, // Rayon par défaut pour les territoires sans donnée
-    ];
-  }, [dataLookup, colorStops]);
+  const radiusExpression = useMemo(
+    () => buildProportionalCircleExpression(dataLookup, colorStops),
+    [dataLookup, colorStops]
+  );
 
   return (
     <Source id="dep-centroid-source" type="vector" url="pmtiles:///geo_2025.pmtiles" attribution="Insee">

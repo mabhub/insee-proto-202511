@@ -1,6 +1,6 @@
 // src/components/MapDemoProportional.jsx
 // Page de démonstration : ronds proportionnels par département (population 2022)
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { Link as RouterLink } from 'react-router';
 import {
   FullscreenControl,
@@ -22,14 +22,14 @@ import {
   Link,
 } from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home';
-import maplibregl from 'maplibre-gl';
-import { Protocol } from 'pmtiles';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { mapStyles, MapSelectorControl } from 'carte-facile';
 import 'carte-facile/carte-facile.css';
 
 import { useAllTerritories } from '../hooks/useData';
 import { useMapData } from '../hooks/useMapData';
+import { usePMTilesProtocol } from '../hooks/usePMTilesProtocol';
+import { buildPopupInfo } from '../helpers/mapHelpers';
 import MapLayersProportional from './MapLayersProportional';
 import MapLegendProportional from './MapLegendProportional';
 
@@ -62,13 +62,7 @@ const MapDemoProportional = () => {
     zoom: 4.5,
   });
 
-  // Enregistrement du protocole PMTiles avec cleanup pour éviter les conflits
-  // si plusieurs pages cartographiques sont montées/démontées
-  useEffect(() => {
-    const protocol = new Protocol();
-    maplibregl.addProtocol('pmtiles', protocol.tile);
-    return () => maplibregl.removeProtocol('pmtiles');
-  }, []);
+  usePMTilesProtocol();
 
   // Récupération des données via TanStack Query
   const { data: geoData, isLoading, error } = useAllTerritories(DATASET_ID, 'DEP', QUERY_PARAMS);
@@ -76,29 +70,11 @@ const MapDemoProportional = () => {
   // Transformation en Map code → {value, label} + calcul min/max
   const { dataLookup, colorStops } = useMapData(geoData);
 
-  /**
-   * Au clic sur la carte, interroge les features rendues sur la layer des cercles.
-   * La propriété GEO dans PMTiles est le code court (ex. "01"), déjà normalisé par
-   * normalizeObservation via useMapData.
-   */
   const handleClick = (evt) => {
     const features = mapRef.current?.queryRenderedFeatures(evt.point, {
       layers: ['dep-circles'],
     });
-    if (features?.length > 0) {
-      const props = features[0].properties;
-      // La propriété GEO dans PMTiles est déjà le code court — pas besoin de split
-      const code = props.GEO;
-      const entry = dataLookup.get(code);
-      setPopupInfo({
-        longitude: evt.lngLat.lng,
-        latitude: evt.lngLat.lat,
-        label: entry?.label || props.GEO_LIB || code,
-        value: entry?.value,
-      });
-    } else {
-      setPopupInfo(null);
-    }
+    setPopupInfo(buildPopupInfo(features, dataLookup, evt.lngLat));
   };
 
   return (

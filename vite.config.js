@@ -51,5 +51,12 @@ export default defineConfig({
         drop_debugger: true,
       },
     },
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'carte-facile': ['carte-facile'],
+        },
+      },
+    },
   },
 });

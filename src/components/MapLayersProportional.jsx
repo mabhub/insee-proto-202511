@@ -30,8 +30,8 @@ const MapLayersProportional = ({ dataLookup, colorStops }) => {
         type="circle"
         paint={{
           'circle-radius': radiusExpression,
-          'circle-color': '#e63946',
-          'circle-opacity': 0.75,
+          'circle-color': '#268DFF', // B4 Insee
+          'circle-opacity': 0.7,
           'circle-stroke-width': 1,
           'circle-stroke-color': '#fff',
         }}

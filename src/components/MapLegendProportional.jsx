@@ -20,14 +20,15 @@ const MapLegendProportional = ({ minValue, maxValue, territoryCount }) => (
     </Typography>
     <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: 2, mb: 1 }}>
       <svg width="80" height="60" style={{ overflow: 'visible' }}>
-        <circle cx="12" cy="50" r="4" fill="#268DFF" opacity={0.7} stroke="#fff" strokeWidth={1} />
+        <circle cx="50" cy="45" r="4" fill="#268DFF" opacity={0.7} stroke="#fff" strokeWidth={1} />
         <circle cx="50" cy="30" r="20" fill="#268DFF" opacity={0.7} stroke="#fff" strokeWidth={1} />
-        <text x="12" y="58" textAnchor="middle" fontSize="8" fill="currentColor">min</text>
-        <text x="50" y="58" textAnchor="middle" fontSize="8" fill="currentColor">max</text>
+        <text x="0" y="60" fontSize="10" fill="currentColor">
+          Min. : {minValue?.toLocaleString('fr-FR')} - Max. : {maxValue?.toLocaleString('fr-FR')}
+        </text>
       </svg>
     </Box>
     <Typography variant="caption" color="text.secondary">
-      Min. : {minValue?.toLocaleString('fr-FR')} - Max. : {maxValue?.toLocaleString('fr-FR')}
+      
     </Typography>
     {territoryCount > 0 && (
       <Typography variant="caption" display="block" color="text.secondary">

@@ -70,15 +70,28 @@ const PHASE_STEPS = [
 const PHASE_ORDER = ['downloading', 'computing', 'rendering', 'ready'];
 
 /**
+ * Format a byte count into a human-readable string (Ko / Mo, French locale).
+ * @param {number} bytes - Cumulative byte count
+ * @returns {string} Formatted size, e.g. "4,2 Mo"
+ */
+const formatBytes = (bytes) => {
+  if (bytes >= 1_000_000) {
+    return `${(bytes / 1_000_000).toLocaleString('fr-FR', { maximumFractionDigits: 1 })} Mo`;
+  }
+  return `${(bytes / 1000).toLocaleString('fr-FR', { maximumFractionDigits: 0 })} Ko`;
+};
+
+/**
  * Vertical list of load steps shown while the page is fetching/computing/rendering.
  * Each step is either pending, in progress (spinner), or done (check icon).
  *
  * @param {Object} props
  * @param {'downloading'|'computing'|'rendering'|'ready'} props.phase - Current phase
  * @param {number} props.observationsCount - Number of observations received (annotates the compute step)
+ * @param {number} props.downloadedBytes - Cumulative bytes received (annotates the download step)
  * @returns {React.ReactElement} Step list
  */
-const LoadProgress = ({ phase, observationsCount }) => {
+const LoadProgress = ({ phase, observationsCount, downloadedBytes }) => {
   const currentIndex = PHASE_ORDER.indexOf(phase);
   return (
     <Stack spacing={1} sx={{ mt: 2 }}>
@@ -86,9 +99,11 @@ const LoadProgress = ({ phase, observationsCount }) => {
         const isDone = i < currentIndex;
         const isActive = step.key === phase;
         const annotation =
-          step.key === 'computing' && observationsCount > 0
-            ? ` (${observationsCount.toLocaleString('fr-FR')} obs)`
-            : '';
+          step.key === 'downloading' && downloadedBytes > 0
+            ? ` — ${formatBytes(downloadedBytes)}`
+            : step.key === 'computing' && observationsCount > 0
+              ? ` (${observationsCount.toLocaleString('fr-FR')} obs)`
+              : '';
         return (
           <Box key={step.key} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             {isDone ? (
@@ -149,9 +164,12 @@ const MapDemoConfigurable = () => {
     return base;
   }, [indicator, geoLevel]);
 
+  const [downloadedBytes, setDownloadedBytes] = useState(0);
+
   const { data: rawData, isLoading, error } = useDataWithMultipleFilters(
     indicator.datasetId,
     queryParams,
+    { onProgress: setDownloadedBytes },
   );
 
   const observationsCount = rawData?.observations?.length ?? 0;
@@ -170,7 +188,10 @@ const MapDemoConfigurable = () => {
   const [phase, setPhase] = useState('ready');
 
   useEffect(() => {
-    if (isLoading) setPhase('downloading');
+    if (isLoading) {
+      setPhase('downloading');
+      setDownloadedBytes(0);
+    }
   }, [isLoading]);
 
   useEffect(() => {
@@ -288,7 +309,11 @@ const MapDemoConfigurable = () => {
           </Typography>
 
           {phase !== 'ready' && (
-            <LoadProgress phase={phase} observationsCount={observationsCount} />
+            <LoadProgress
+              phase={phase}
+              observationsCount={observationsCount}
+              downloadedBytes={downloadedBytes}
+            />
           )}
           {error && <Alert severity="error" sx={{ mt: 2 }}>{error.message}</Alert>}
           {stops && (

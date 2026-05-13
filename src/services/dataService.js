@@ -77,12 +77,40 @@ export const fetchNestedTerritories = (
   });
 
 /**
- * Fetch data for multiple filter values (e.g., multiple ages)
+ * Read a response body as text while reporting incremental byte counts.
+ * Falls back to response.text() if the body is not a stream.
+ * @param {Response} response - Fetch response
+ * @param {(bytes: number) => void} onProgress - Called with cumulative bytes received
+ * @returns {Promise<string>} Decoded body text
+ */
+const readBodyWithProgress = async (response, onProgress) => {
+  if (!response.body?.getReader) return response.text();
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder('utf-8');
+  let received = 0;
+  let text = '';
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    received += value.byteLength;
+    text += decoder.decode(value, { stream: true });
+    onProgress(received);
+  }
+  text += decoder.decode();
+  return text;
+};
+
+/**
+ * Fetch data for multiple filter values (e.g., multiple ages).
  * @param {string} datasetId - Dataset identifier
  * @param {Object} params - Query parameters with array values
+ * @param {Object} [options]
+ * @param {(bytes: number) => void} [options.onProgress] - Cumulative bytes received callback.
+ *        When provided, the response body is read as a stream so the caller can
+ *        surface download progress. Adds a small overhead vs response.json().
  * @returns {Promise<Object>} API response data
  */
-export const fetchDataWithMultipleFilters = async (datasetId, params = {}) => {
+export const fetchDataWithMultipleFilters = async (datasetId, params = {}, { onProgress } = {}) => {
   const url = new URL(`${API_CONFIG.baseUrl}${API_CONFIG.endpoints.data.byId(datasetId)}`);
 
   // Handle array parameters (add multiple times)
@@ -100,6 +128,8 @@ export const fetchDataWithMultipleFilters = async (datasetId, params = {}) => {
     throw new Error(`Failed to fetch data: ${response.statusText}`);
   }
 
-  const data = await response.json();
+  const data = onProgress
+    ? JSON.parse(await readBodyWithProgress(response, onProgress))
+    : await response.json();
   return normalizeResponse(data);
 };

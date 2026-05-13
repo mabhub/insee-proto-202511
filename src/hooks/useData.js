@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
 import { QUERY_KEYS } from '../config/api';
 import {
   fetchAllTerritories,
@@ -75,16 +75,32 @@ export const useNestedTerritories = (
  * Hook to fetch data with multiple filter values
  * @param {string} datasetId - Dataset identifier
  * @param {Object} params - Query parameters (can contain arrays)
- * @param {Object} options - React Query options
+ * @param {Object} [options] - React Query options
+ * @param {(bytes: number) => void} [options.onProgress] - Cumulative bytes received callback.
+ *        When provided, the body is read as a stream so the caller can render a
+ *        live download size. Kept out of the query key — same dataset + params
+ *        share the same cache entry.
  * @returns {Object} React Query result
  */
-export const useDataWithMultipleFilters = (datasetId, params = {}, options = {}) =>
-  useQuery({
+export const useDataWithMultipleFilters = (datasetId, params = {}, options = {}) => {
+  const { onProgress, ...queryOptions } = options;
+  // Use a ref so changing the callback between renders doesn't invalidate the
+  // queryFn identity (and therefore doesn't trigger a refetch).
+  const onProgressRef = useRef(onProgress);
+  onProgressRef.current = onProgress;
+
+  return useQuery({
     queryKey: QUERY_KEYS.data.byId(datasetId, params),
-    queryFn: () => fetchDataWithMultipleFilters(datasetId, params),
+    queryFn: () =>
+      fetchDataWithMultipleFilters(datasetId, params, {
+        onProgress: onProgressRef.current
+          ? (bytes) => onProgressRef.current(bytes)
+          : undefined,
+      }),
     enabled: Boolean(datasetId && Object.keys(params).length > 0),
-    ...options,
+    ...queryOptions,
   });
+};
 
 /**
  * Hook to fetch data with enriched geographic labels

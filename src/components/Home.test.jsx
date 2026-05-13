@@ -23,6 +23,7 @@ describe('home component', () => {
     expect(screen.getByRole('link', { name: /Carte statique/i })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /Carte IGN/i })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /Ronds proportionnels/i })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /Choroplèthe/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Choroplèthe ratio 80\+/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Choroplèthe configurable/i })).toBeInTheDocument();
   });
 });

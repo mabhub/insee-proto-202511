@@ -31,16 +31,17 @@ export const buildFillDataLayerId = (geoLevel) =>
  * @param {Map<string, {value: number, label: string}>} props.dataLookup - Valeurs par code court
  * @param {{min: number, max: number}|null} props.ratioStops - Bornes min/max pour les classes
  * @param {'COM'|'EPCI'|'DEP'} [props.geoLevel='DEP'] - Niveau géographique à afficher
+ * @param {'linear'|'log'} [props.scale='linear'] - Échelle de découpage des classes
  */
-const MapLayersChoropleth = ({ dataLookup, ratioStops, geoLevel = 'DEP' }) => {
+const MapLayersChoropleth = ({ dataLookup, ratioStops, geoLevel = 'DEP', scale = 'linear' }) => {
   const effectiveLevel = GEO_LEVEL_TO_SOURCE_LAYER[geoLevel] ? geoLevel : 'DEP';
   const sourceLayer = GEO_LEVEL_TO_SOURCE_LAYER[effectiveLevel];
   const prefix = effectiveLevel.toLowerCase();
 
   // Expression MapLibre `match` : attribue une couleur de classe à chaque code GEO
   const fillColorExpression = useMemo(
-    () => buildStepExpression(dataLookup, ratioStops),
-    [dataLookup, ratioStops]
+    () => buildStepExpression(dataLookup, ratioStops, { scale }),
+    [dataLookup, ratioStops, scale]
   );
 
   return (

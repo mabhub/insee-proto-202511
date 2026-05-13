@@ -12,6 +12,7 @@ import MapDemoStatic from './components/MapDemoStatic';
 import MapDemoIgnCarteFacile from './components/MapDemoIgnCarteFacile';
 import MapDemoProportional from './components/MapDemoProportional';
 import MapDemoChoropleth from './components/MapDemoChoropleth';
+import MapDemoConfigurable from './components/MapDemoConfigurable';
 
 const App = () => (
   <BrowserRouter>
@@ -24,6 +25,7 @@ const App = () => (
       <Route path="/map-demo-ign-cartefacile" element={<MapDemoIgnCarteFacile />} />
       <Route path="/map-demo-proportional" element={<MapDemoProportional />} />
       <Route path="/map-demo-choropleth" element={<MapDemoChoropleth />} />
+      <Route path="/map-demo-configurable" element={<MapDemoConfigurable />} />
     </Routes>
   </BrowserRouter>
 );

@@ -129,6 +129,20 @@ const Home = () => (
               Part des 80 ans et plus par département
             </Typography>
           </Box>
+          <Box textAlign="center">
+            <Button
+              component={RouterLink}
+              to="/map-demo-configurable"
+              variant="contained"
+              color="primary"
+              size="large"
+            >
+              Choroplèthe configurable
+            </Button>
+            <Typography variant="caption" display="block" sx={{ mt: 1 }} color="text.secondary">
+              Indicateur, niveau géographique et échelle au choix
+            </Typography>
+          </Box>
         </Stack>
       </Box>
     </Paper>

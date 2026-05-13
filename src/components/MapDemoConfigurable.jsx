@@ -1,6 +1,6 @@
 // src/components/MapDemoConfigurable.jsx
 // Configurable choropleth demo page: indicator + geographic level + class scale.
-import { useState, useRef, useMemo } from 'react';
+import { useState, useRef, useMemo, useEffect } from 'react';
 import { Link as RouterLink } from 'react-router';
 import {
   FullscreenControl,
@@ -28,6 +28,7 @@ import {
   ToggleButtonGroup,
   Stack,
 } from '@mui/material';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import HomeIcon from '@mui/icons-material/Home';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { mapStyles, MapSelectorControl } from 'carte-facile';
@@ -58,6 +59,56 @@ const GEO_LEVEL_LABELS = {
 const MyMapSelectorControl = () => {
   useControl(() => new MapSelectorControl());
   return null;
+};
+
+const PHASE_STEPS = [
+  { key: 'downloading', label: 'Téléchargement des données' },
+  { key: 'computing', label: 'Calcul de l’indicateur' },
+  { key: 'rendering', label: 'Rendu de la carte' },
+];
+
+const PHASE_ORDER = ['downloading', 'computing', 'rendering', 'ready'];
+
+/**
+ * Vertical list of load steps shown while the page is fetching/computing/rendering.
+ * Each step is either pending, in progress (spinner), or done (check icon).
+ *
+ * @param {Object} props
+ * @param {'downloading'|'computing'|'rendering'|'ready'} props.phase - Current phase
+ * @param {number} props.observationsCount - Number of observations received (annotates the compute step)
+ * @returns {React.ReactElement} Step list
+ */
+const LoadProgress = ({ phase, observationsCount }) => {
+  const currentIndex = PHASE_ORDER.indexOf(phase);
+  return (
+    <Stack spacing={1} sx={{ mt: 2 }}>
+      {PHASE_STEPS.map((step, i) => {
+        const isDone = i < currentIndex;
+        const isActive = step.key === phase;
+        const annotation =
+          step.key === 'computing' && observationsCount > 0
+            ? ` (${observationsCount.toLocaleString('fr-FR')} obs)`
+            : '';
+        return (
+          <Box key={step.key} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            {isDone ? (
+              <CheckCircleIcon fontSize="small" color="success" />
+            ) : isActive ? (
+              <CircularProgress size={16} />
+            ) : (
+              <Box sx={{ width: 16, height: 16, borderRadius: '50%', border: '1px solid', borderColor: 'divider' }} />
+            )}
+            <Typography
+              variant="body2"
+              color={isActive ? 'text.primary' : isDone ? 'text.secondary' : 'text.disabled'}
+            >
+              {step.label}{annotation}
+            </Typography>
+          </Box>
+        );
+      })}
+    </Stack>
+  );
 };
 
 /**
@@ -103,10 +154,47 @@ const MapDemoConfigurable = () => {
     queryParams,
   );
 
+  const observationsCount = rawData?.observations?.length ?? 0;
+
   const { lookup, stops } = useMemo(
     () => computeIndicator(rawData?.observations, indicator.formula),
     [rawData, indicator],
   );
+
+  // Load phase used to surface progress in the side panel:
+  //   downloading → computing → rendering → ready
+  //
+  // `downloading` covers the network fetch + JSON normalization done inside
+  // TanStack Query. `computing` and `rendering` are short bursts but we let
+  // each one paint at least once so the user sees the transitions.
+  const [phase, setPhase] = useState('ready');
+
+  useEffect(() => {
+    if (isLoading) setPhase('downloading');
+  }, [isLoading]);
+
+  useEffect(() => {
+    if (!isLoading && rawData) setPhase('computing');
+  }, [isLoading, rawData]);
+
+  useEffect(() => {
+    if (phase !== 'computing') return;
+    // The useMemo has run synchronously by the time this effect fires;
+    // hand off to the next paint so 'computing' is actually visible.
+    const id = requestAnimationFrame(() => setPhase('rendering'));
+    return () => cancelAnimationFrame(id);
+  }, [phase, lookup]);
+
+  useEffect(() => {
+    if (phase !== 'rendering') return;
+    const map = mapRef.current?.getMap?.();
+    if (!map) return;
+    const handleIdle = () => setPhase('ready');
+    map.on('idle', handleIdle);
+    return () => {
+      map.off('idle', handleIdle);
+    };
+  }, [phase, lookup, geoLevel, scale]);
 
   const fillDataLayerId = buildFillDataLayerId(geoLevel);
 
@@ -199,7 +287,9 @@ const MapDemoConfigurable = () => {
             Niveau : <code>{geoLevel}</code>
           </Typography>
 
-          {isLoading && <CircularProgress sx={{ mt: 2 }} />}
+          {phase !== 'ready' && (
+            <LoadProgress phase={phase} observationsCount={observationsCount} />
+          )}
           {error && <Alert severity="error" sx={{ mt: 2 }}>{error.message}</Alert>}
           {stops && (
             <Typography variant="body2" sx={{ mt: 2 }}>

@@ -1,5 +1,11 @@
 import { describe, it, expect } from 'vitest';
-import { interpolateColor, CHOROPLETH_COLORS, buildStepExpression, buildProportionalCircleExpression } from './colorHelpers';
+import {
+  interpolateColor,
+  CHOROPLETH_COLORS,
+  buildStepExpression,
+  buildProportionalCircleExpression,
+  computeClassBreaks,
+} from './colorHelpers';
 
 describe('interpolateColor', () => {
   it('returns the minimum color at ratio 0', () => {
@@ -106,7 +112,67 @@ describe('buildStepExpression', () => {
     });
 
     const uniqueColors = new Set(assignedColors);
-    expect(uniqueColors.size).toBeGreaterThan(1);
+    expect(uniqueColors.size).toBe(5);
+  });
+});
+
+describe('computeClassBreaks', () => {
+  it('produces 6 evenly spaced breaks for a linear scale', () => {
+    const breaks = computeClassBreaks({ min: 0, max: 100 }, 'linear');
+    expect(breaks).toEqual([0, 20, 40, 60, 80, 100]);
+  });
+
+  it('defaults to linear when scale is omitted', () => {
+    const breaks = computeClassBreaks({ min: 0, max: 100 });
+    expect(breaks[0]).toBe(0);
+    expect(breaks[5]).toBe(100);
+  });
+
+  it('produces geometrically spaced breaks for a log scale', () => {
+    const breaks = computeClassBreaks({ min: 1, max: 100000 }, 'log');
+    expect(breaks).toHaveLength(6);
+    expect(breaks[0]).toBeCloseTo(1, 5);
+    expect(breaks[5]).toBeCloseTo(100000, 0);
+    // Ratio between consecutive breaks should be constant
+    const ratio = breaks[1] / breaks[0];
+    for (let i = 1; i < 5; i++) {
+      expect(breaks[i + 1] / breaks[i]).toBeCloseTo(ratio, 5);
+    }
+  });
+
+  it('falls back to linear when min is not strictly positive', () => {
+    const breaks = computeClassBreaks({ min: 0, max: 100 }, 'log');
+    expect(breaks).toEqual([0, 20, 40, 60, 80, 100]);
+  });
+
+  it('falls back to linear when max is not strictly greater than min', () => {
+    const breaks = computeClassBreaks({ min: 5, max: 5 }, 'log');
+    expect(breaks).toEqual([5, 5, 5, 5, 5, 5]);
+  });
+});
+
+describe('buildStepExpression — log scale', () => {
+  it('uses geometric breaks when scale=log', () => {
+    const lookup = new Map([
+      ['01', { value: 1, label: 'A' }],
+      ['02', { value: 10, label: 'B' }],
+      ['03', { value: 100, label: 'C' }],
+      ['04', { value: 1000, label: 'D' }],
+      ['05', { value: 100000, label: 'E' }],
+    ]);
+    const result = buildStepExpression(lookup, { min: 1, max: 100000 }, { scale: 'log' });
+    const colorFor = (code) => result[result.indexOf(code) + 1];
+
+    // With linear scale, 1, 10, 100, 1000 would all land in class 0 (< 20000).
+    // With log scale, they should be spread across classes.
+    const assigned = new Set([
+      colorFor('01'),
+      colorFor('02'),
+      colorFor('03'),
+      colorFor('04'),
+      colorFor('05'),
+    ]);
+    expect(assigned.size).toBeGreaterThan(2);
   });
 });
 

@@ -1,7 +1,7 @@
 // src/components/MapLegendChoropleth.jsx
 // Légende superposée pour la carte choroplèthe (5 classes)
 import { Paper, Typography, Box } from '@mui/material';
-import { CHOROPLETH_COLORS } from '../helpers/colorHelpers';
+import { CHOROPLETH_COLORS, computeClassBreaks } from '../helpers/colorHelpers';
 
 /**
  * Légende positionnée en bas à droite de la carte.
@@ -15,18 +15,19 @@ import { CHOROPLETH_COLORS } from '../helpers/colorHelpers';
  * @param {number} props.maxValue - Valeur maximale observée
  * @param {string} [props.title='Part des 80 ans et plus (2022)'] - Titre affiché
  * @param {string} [props.unit='%'] - Unité affichée à côté de chaque seuil
+ * @param {'linear'|'log'} [props.scale='linear'] - Échelle des classes
  */
 const MapLegendChoropleth = ({
   minValue,
   maxValue,
   title = 'Part des 80 ans et plus (2022)',
   unit = '%',
+  scale = 'linear',
 }) => {
   if (minValue == null || maxValue == null) return null;
 
-  // 5 classes d'égale amplitude — même logique que buildStepExpression
-  const step = (maxValue - minValue) / 5;
-  const breaks = Array.from({ length: 5 }, (_, i) => minValue + step * i);
+  // 6 bornes (5 classes) — même logique que buildStepExpression
+  const breaks = computeClassBreaks({ min: minValue, max: maxValue }, scale);
 
   return (
     <Paper elevation={3} sx={{ position: 'absolute', bottom: 32, right: 16, p: 2, minWidth: 180, zIndex: 1 }}>
@@ -37,7 +38,7 @@ const MapLegendChoropleth = ({
         <Box key={i} sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
           <Box sx={{ width: 16, height: 16, bgcolor: color, flexShrink: 0, border: '1px solid #ccc' }} />
           <Typography variant="caption">
-            {breaks[i].toFixed(1)} {unit}{i < 4 ? ` – ${(breaks[i] + step).toFixed(1)} ${unit}` : '+'}
+            {breaks[i].toFixed(1)} {unit}{i < 4 ? ` – ${breaks[i + 1].toFixed(1)} ${unit}` : '+'}
           </Typography>
         </Box>
       ))}

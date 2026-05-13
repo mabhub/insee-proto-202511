@@ -60,8 +60,32 @@ export const interpolateColor = (ratio) => {
 export const CHOROPLETH_COLORS = ['#fee5d9', '#fcbba1', '#fc9272', '#fb6a4a', '#cb181d'];
 
 /**
+ * Calcule les bornes des 5 classes choroplèthe selon l'échelle demandée.
+ *
+ * - linear : 5 classes d'amplitude égale entre min et max.
+ * - log    : 5 classes d'amplitude égale dans l'espace log(x). Nécessite min > 0 ;
+ *            retombe sur 'linear' sinon.
+ *
+ * Retourne un tableau de 6 bornes (les 5 frontières inférieures + la borne max).
+ *
+ * @param {{min: number, max: number}} stops - Bornes globales min/max
+ * @param {'linear'|'log'} [scale='linear'] - Échelle de découpage
+ * @returns {number[]} Tableau de 6 bornes croissantes
+ */
+export const computeClassBreaks = ({ min, max }, scale = 'linear') => {
+  if (scale === 'log' && min > 0 && max > min) {
+    const lmin = Math.log(min);
+    const lmax = Math.log(max);
+    const lstep = (lmax - lmin) / 5;
+    return Array.from({ length: 6 }, (_, i) => Math.exp(lmin + lstep * i));
+  }
+  const step = (max - min) / 5;
+  return Array.from({ length: 6 }, (_, i) => min + step * i);
+};
+
+/**
  * Construit une expression MapLibre `match` qui attribue une couleur de classe
- * à chaque territoire selon 5 seuils égaux entre min et max.
+ * à chaque territoire selon 5 seuils entre min et max.
  *
  * Choix technique : on utilise `match` avec le code court (ex. "01") plutôt qu'une
  * expression `step` sur la valeur directement, car les données sont dans une Map JS
@@ -69,23 +93,25 @@ export const CHOROPLETH_COLORS = ['#fee5d9', '#fcbba1', '#fc9272', '#fb6a4a', '#
  *
  * @param {Map<string, {value: number, label: string}>} dataLookup - Données par code court
  * @param {{min: number, max: number}|null} ratioStops - Bornes min/max
+ * @param {Object} [options]
+ * @param {'linear'|'log'} [options.scale='linear'] - Échelle de découpage
  * @returns {Array|string} Expression MapLibre ou couleur de repli
  */
-export const buildStepExpression = (dataLookup, ratioStops) => {
+export const buildStepExpression = (dataLookup, ratioStops, { scale = 'linear' } = {}) => {
   if (!dataLookup.size || !ratioStops) return '#e0e0e0';
 
-  // Découpage en 5 classes d'amplitude égale
-  const step = (ratioStops.max - ratioStops.min) / 5;
-  const breaks = Array.from({ length: 4 }, (_, i) => ratioStops.min + step * (i + 1));
+  const allBreaks = computeClassBreaks(ratioStops, scale);
+  // 4 frontières internes pour assigner les 5 classes 0..4
+  const innerBreaks = allBreaks.slice(1, 5);
 
   return [
     'match',
     ['to-string', ['get', 'GEO']],
     ...Array.from(dataLookup.entries()).flatMap(([code, { value }]) => {
       // Compte combien de seuils la valeur dépasse → indice de classe 0..4
-      const idx = breaks.filter(b => value >= b).length;
+      const idx = innerBreaks.filter((b) => value >= b).length;
       return [code, CHOROPLETH_COLORS[idx]];
     }),
-    '#e0e0e0', // Couleur des départements sans donnée
+    '#e0e0e0', // Couleur des entités sans donnée
   ];
 };

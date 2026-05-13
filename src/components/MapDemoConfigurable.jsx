@@ -62,12 +62,14 @@ const MyMapSelectorControl = () => {
 };
 
 const PHASE_STEPS = [
+  { key: 'requesting', label: 'Attente de la réponse du serveur' },
   { key: 'downloading', label: 'Téléchargement des données' },
   { key: 'computing', label: 'Calcul de l’indicateur' },
   { key: 'rendering', label: 'Rendu de la carte' },
 ];
 
-const PHASE_ORDER = ['downloading', 'computing', 'rendering', 'ready'];
+// PHASE_ORDER must include the terminal 'ready' phase used to hide the panel.
+const PHASE_ORDER = [...PHASE_STEPS.map((s) => s.key), 'ready'];
 
 /**
  * Format a byte count into a human-readable string (Ko / Mo, French locale).
@@ -86,7 +88,7 @@ const formatBytes = (bytes) => {
  * Each step is either pending, in progress (spinner), or done (check icon).
  *
  * @param {Object} props
- * @param {'downloading'|'computing'|'rendering'|'ready'} props.phase - Current phase
+ * @param {'requesting'|'downloading'|'computing'|'rendering'|'ready'} props.phase - Current phase
  * @param {number} props.observationsCount - Number of observations received (annotates the compute step)
  * @param {number} props.downloadedBytes - Cumulative bytes received (annotates the download step)
  * @returns {React.ReactElement} Step list
@@ -165,11 +167,15 @@ const MapDemoConfigurable = () => {
   }, [indicator, geoLevel]);
 
   const [downloadedBytes, setDownloadedBytes] = useState(0);
+  const [responseStarted, setResponseStarted] = useState(false);
 
   const { data: rawData, isLoading, error } = useDataWithMultipleFilters(
     indicator.datasetId,
     queryParams,
-    { onProgress: setDownloadedBytes },
+    {
+      onResponseStart: () => setResponseStarted(true),
+      onProgress: setDownloadedBytes,
+    },
   );
 
   const observationsCount = rawData?.observations?.length ?? 0;
@@ -180,19 +186,24 @@ const MapDemoConfigurable = () => {
   );
 
   // Load phase used to surface progress in the side panel:
-  //   downloading → computing → rendering → ready
+  //   requesting → downloading → computing → rendering → ready
   //
-  // `downloading` covers the network fetch + JSON normalization done inside
-  // TanStack Query. `computing` and `rendering` are short bursts but we let
-  // each one paint at least once so the user sees the transitions.
+  // `requesting` covers the wait between firing the request and receiving the
+  // first response bytes (server TTFB). `downloading` starts on the first
+  // chunk read from the body stream.
   const [phase, setPhase] = useState('ready');
 
   useEffect(() => {
     if (isLoading) {
-      setPhase('downloading');
+      setPhase('requesting');
+      setResponseStarted(false);
       setDownloadedBytes(0);
     }
   }, [isLoading]);
+
+  useEffect(() => {
+    if (isLoading && responseStarted) setPhase('downloading');
+  }, [isLoading, responseStarted]);
 
   useEffect(() => {
     if (!isLoading && rawData) setPhase('computing');
@@ -208,12 +219,48 @@ const MapDemoConfigurable = () => {
 
   useEffect(() => {
     if (phase !== 'rendering') return;
-    const map = mapRef.current?.getMap?.();
-    if (!map) return;
-    const handleIdle = () => setPhase('ready');
-    map.on('idle', handleIdle);
+
+    let cancelled = false;
+    let rafId = null;
+    let timeoutId = null;
+    let detach = null;
+
+    const finish = () => {
+      if (cancelled) return;
+      cancelled = true;
+      setPhase('ready');
+    };
+
+    const attach = () => {
+      const map = mapRef.current?.getMap?.();
+      if (!map) {
+        // Ref not ready yet — try again on the next frame.
+        rafId = requestAnimationFrame(attach);
+        return;
+      }
+      // If the map already settled before we got here, finish immediately.
+      // isStyleLoaded() + !isMoving() is the same predicate MapLibre uses
+      // before emitting 'idle'.
+      if (map.isStyleLoaded() && !map.isMoving()) {
+        finish();
+        return;
+      }
+      const handleIdle = () => finish();
+      map.on('idle', handleIdle);
+      detach = () => map.off('idle', handleIdle);
+    };
+
+    attach();
+
+    // Safety net: if 'idle' never fires (e.g. continuous animation, missed
+    // event), don't leave the user stuck on "Rendu de la carte" forever.
+    timeoutId = setTimeout(finish, 1500);
+
     return () => {
-      map.off('idle', handleIdle);
+      cancelled = true;
+      if (rafId !== null) cancelAnimationFrame(rafId);
+      if (timeoutId !== null) clearTimeout(timeoutId);
+      if (detach) detach();
     };
   }, [phase, lookup, geoLevel, scale]);
 

@@ -76,6 +76,8 @@ export const useNestedTerritories = (
  * @param {string} datasetId - Dataset identifier
  * @param {Object} params - Query parameters (can contain arrays)
  * @param {Object} [options] - React Query options
+ * @param {() => void} [options.onResponseStart] - Called when the server response
+ *        headers are received, before any body byte is read.
  * @param {(bytes: number) => void} [options.onProgress] - Cumulative bytes received callback.
  *        When provided, the body is read as a stream so the caller can render a
  *        live download size. Kept out of the query key — same dataset + params
@@ -83,9 +85,11 @@ export const useNestedTerritories = (
  * @returns {Object} React Query result
  */
 export const useDataWithMultipleFilters = (datasetId, params = {}, options = {}) => {
-  const { onProgress, ...queryOptions } = options;
-  // Use a ref so changing the callback between renders doesn't invalidate the
+  const { onResponseStart, onProgress, ...queryOptions } = options;
+  // Use refs so changing the callbacks between renders doesn't invalidate the
   // queryFn identity (and therefore doesn't trigger a refetch).
+  const onResponseStartRef = useRef(onResponseStart);
+  onResponseStartRef.current = onResponseStart;
   const onProgressRef = useRef(onProgress);
   onProgressRef.current = onProgress;
 
@@ -93,6 +97,9 @@ export const useDataWithMultipleFilters = (datasetId, params = {}, options = {})
     queryKey: QUERY_KEYS.data.byId(datasetId, params),
     queryFn: () =>
       fetchDataWithMultipleFilters(datasetId, params, {
+        onResponseStart: onResponseStartRef.current
+          ? () => onResponseStartRef.current()
+          : undefined,
         onProgress: onProgressRef.current
           ? (bytes) => onProgressRef.current(bytes)
           : undefined,

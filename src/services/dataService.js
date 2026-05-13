@@ -105,12 +105,19 @@ const readBodyWithProgress = async (response, onProgress) => {
  * @param {string} datasetId - Dataset identifier
  * @param {Object} params - Query parameters with array values
  * @param {Object} [options]
+ * @param {() => void} [options.onResponseStart] - Called when the server's response
+ *        headers have arrived, before any body byte is read. Lets the caller
+ *        distinguish "waiting for server" from "downloading".
  * @param {(bytes: number) => void} [options.onProgress] - Cumulative bytes received callback.
  *        When provided, the response body is read as a stream so the caller can
  *        surface download progress. Adds a small overhead vs response.json().
  * @returns {Promise<Object>} API response data
  */
-export const fetchDataWithMultipleFilters = async (datasetId, params = {}, { onProgress } = {}) => {
+export const fetchDataWithMultipleFilters = async (
+  datasetId,
+  params = {},
+  { onResponseStart, onProgress } = {},
+) => {
   const url = new URL(`${API_CONFIG.baseUrl}${API_CONFIG.endpoints.data.byId(datasetId)}`);
 
   // Handle array parameters (add multiple times)
@@ -127,6 +134,8 @@ export const fetchDataWithMultipleFilters = async (datasetId, params = {}, { onP
   if (!response.ok) {
     throw new Error(`Failed to fetch data: ${response.statusText}`);
   }
+
+  onResponseStart?.();
 
   const data = onProgress
     ? JSON.parse(await readBodyWithProgress(response, onProgress))

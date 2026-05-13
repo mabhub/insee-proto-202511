@@ -45,7 +45,7 @@ const MapLayersChoropleth = ({ dataLookup, ratioStops, geoLevel = 'DEP', scale =
   );
 
   return (
-    <Source id={`${prefix}-contour-source`} type="vector" url="pmtiles:///geo_2025.pmtiles" attribution="Insee">
+    <Source id="geo-2025-source" type="vector" url="pmtiles:///geo_2025.pmtiles" attribution="Insee">
       {/* Fond neutre — s'affiche pour les entités sans donnée */}
       <Layer
         id={`${prefix}-fill-bg`}

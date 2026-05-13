@@ -222,6 +222,7 @@ const MapDemoConfigurable = () => {
             <NavigationControl />
             <ScaleControl />
             <MapLayersChoropleth
+              key={geoLevel}
               dataLookup={lookup}
               ratioStops={stops}
               geoLevel={geoLevel}

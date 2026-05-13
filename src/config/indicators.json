@@ -1,0 +1,94 @@
+[
+  {
+    "id": "part-de-la-population-agee-de-moins-de-20-ans-en-2022",
+    "title": "Part de la population âgée de moins de 20 ans en 2022",
+    "datasetId": "DS_RP_POPULATION_PRINC",
+    "filter": {
+      "SEX": "_T",
+      "AGE": [
+        "_T",
+        "Y_LT20"
+      ],
+      "TIME_PERIOD": "2022"
+    },
+    "formula": {
+      "type": "ratio",
+      "numerator": {
+        "AGE": "Y_LT20"
+      },
+      "denominator": {
+        "AGE": "_T"
+      }
+    },
+    "unit": "%"
+  },
+  {
+    "id": "part-de-la-population-agee-de-80-ans-et-plus-en-2022",
+    "title": "Part de la population âgée de 80 ans et plus en 2022",
+    "datasetId": "DS_RP_POPULATION_PRINC",
+    "filter": {
+      "SEX": "_T",
+      "AGE": [
+        "_T",
+        "Y_GE80"
+      ],
+      "TIME_PERIOD": "2022"
+    },
+    "formula": {
+      "type": "ratio",
+      "numerator": {
+        "AGE": "Y_GE80"
+      },
+      "denominator": {
+        "AGE": "_T"
+      }
+    },
+    "unit": "%"
+  },
+  {
+    "id": "part-de-l-industrie-dans-les-creations-d-entreprises",
+    "title": "Part de l'industrie dans les créations d'entreprises",
+    "datasetId": "DS_SIDE_CREA_ENT_COM",
+    "filter": {
+      "LEGAL_FORM": "_T",
+      "ACTIVITY": [
+        "_T",
+        "BE"
+      ],
+      "TIME_PERIOD": "2025"
+    },
+    "formula": {
+      "type": "ratio",
+      "numerator": {
+        "ACTIVITY": "BE"
+      },
+      "denominator": {
+        "ACTIVITY": "_T"
+      }
+    },
+    "unit": "%"
+  },
+  {
+    "id": "part-des-activites-immobilieres-dans-les-creations-d",
+    "title": "Part des activités immobilières dans les créations d'entreprises",
+    "datasetId": "DS_SIDE_CREA_ENT_COM",
+    "filter": {
+      "LEGAL_FORM": "_T",
+      "ACTIVITY": [
+        "_T",
+        "LZ"
+      ],
+      "TIME_PERIOD": "2025"
+    },
+    "formula": {
+      "type": "ratio",
+      "numerator": {
+        "ACTIVITY": "LZ"
+      },
+      "denominator": {
+        "ACTIVITY": "_T"
+      }
+    },
+    "unit": "%"
+  }
+]

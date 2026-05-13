@@ -88,11 +88,15 @@ const MapDemoConfigurable = () => {
     [indicatorId],
   );
 
-  // Build query params: indicator filter + GEO level
-  const queryParams = useMemo(
-    () => ({ ...indicator.filter, GEO: geoLevel }),
-    [indicator, geoLevel],
-  );
+  // Build query params: indicator filter + GEO level.
+  // COM (~35k communes) needs maxResult=100000 to bypass the default 10k cap,
+  // otherwise multi-value filters (e.g. AGE=_T+Y_LT20) return only one of the
+  // values and the ratio cannot be computed.
+  const queryParams = useMemo(() => {
+    const base = { ...indicator.filter, GEO: geoLevel };
+    if (geoLevel === 'COM') base.maxResult = 100000;
+    return base;
+  }, [indicator, geoLevel]);
 
   const { data: rawData, isLoading, error } = useDataWithMultipleFilters(
     indicator.datasetId,

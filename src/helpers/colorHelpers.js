@@ -57,7 +57,8 @@ export const interpolateColor = (ratio) => {
  * Palette 5 classes pour choroplèthe discrète (rouge progressif).
  * Correspond aux 5 niveaux produits par buildStepExpression.
  */
-export const CHOROPLETH_COLORS = ['#fee5d9', '#fcbba1', '#fc9272', '#fb6a4a', '#cb181d'];
+export const CHOROPLETH_COLORS = ['rgb(255, 185, 187)', 'rgb(251, 90, 90)', 
+  'rgb(233, 20, 34)', 'rgb(196, 16, 29)', 'rgb(120, 8, 15)'];
 
 /**
  * Calcule les bornes des 5 classes choroplèthe selon l'échelle demandée.
@@ -112,6 +113,6 @@ export const buildStepExpression = (dataLookup, ratioStops, { scale = 'linear' }
       const idx = innerBreaks.filter((b) => value >= b).length;
       return [code, CHOROPLETH_COLORS[idx]];
     }),
-    '#e0e0e0', // Couleur des entités sans donnée
+    'rgb(204, 204, 204)', // Couleur des entités sans donnée
   ];
 };

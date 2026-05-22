@@ -285,11 +285,7 @@ const MapDemoConfigurable = () => {
         {/* Description and controls panel */}
         <Paper elevation={1} sx={{ flex: 1, maxWidth: '35%', p: 3, m: 1, overflowY: 'auto' }}>
           <Typography variant="h4" component="h1" gutterBottom>
-            Choroplèthe configurable
-          </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-            Indicateur et niveau géographique au choix —{' '}
-            <Link href="https://api.insee.fr/melodi" target="_blank">API Melodi</Link>
+            Cartographie sur API
           </Typography>
 
           <Stack spacing={2} sx={{ mb: 3 }}>
@@ -324,6 +320,7 @@ const MapDemoConfigurable = () => {
                 ))}
               </Select>
             </FormControl>
+          </Stack>
 
             <Box>
               <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
@@ -346,14 +343,6 @@ const MapDemoConfigurable = () => {
                 </Typography>
               )}
             </Box>
-          </Stack>
-
-          <Typography variant="body2" color="text.secondary">
-            Jeu de données : <code>{indicator.datasetId}</code>
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Niveau : <code>{geoLevel}</code>
-          </Typography>
 
           {phase !== 'ready' && (
             <LoadProgress
@@ -369,6 +358,14 @@ const MapDemoConfigurable = () => {
               {stops.max.toFixed(2)} {indicator.unit}
             </Typography>
           )}
+            <Typography variant="body2">          
+              <Link 
+                href={`https://catalogue-donnees.insee.fr/fr/explorateur/${indicator.datasetId}`}
+                target="_blank"
+                >
+                🚀 Explorer le jeu de données de la carte ({indicator.datasetId})
+              </Link>
+            </Typography>
         </Paper>
 
         {/* Map container */}

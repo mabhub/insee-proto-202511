@@ -92,29 +92,6 @@
     "unit": "%"
   },
   {
-    "id": "part-des-activites-immobilieres-dans-les-creations-d",
-    "title": "[SIDE] Part des activités immobilières dans les créations d'entreprises",
-    "datasetId": "DS_SIDE_CREA_ENT_COM",
-    "filter": {
-      "LEGAL_FORM": "_T",
-      "ACTIVITY": [
-        "_T",
-        "LZ"
-      ],
-      "TIME_PERIOD": "2025"
-    },
-    "formula": {
-      "type": "ratio",
-      "numerator": {
-        "ACTIVITY": "LZ"
-      },
-      "denominator": {
-        "ACTIVITY": "_T"
-      }
-    },
-    "unit": "%"
-  },
-  {
     "id": "part-effectif-agri-flores",
     "title": "[Flores] Part des effectifs salariés de l'agriculture, sylviculture et pêche",
     "datasetId": "DS_FLORES_A5",

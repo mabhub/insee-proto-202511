@@ -1,6 +1,4 @@
-import { Link as RouterLink } from 'react-router';
 import {
-  Button,
   Typography,
   Box,
   Paper,
@@ -12,9 +10,72 @@ import MapIcon from '@mui/icons-material/Map';
 import LayersIcon from '@mui/icons-material/Layers';
 
 import Layout from './Layout';
+import DemoLink from './DemoLink';
 
 /**
- * Home page component with a simple counter example
+ * Liste des démonstrations affichées sur l'accueil. Une entrée = un bouton +
+ * sa légende. Modifier/ajouter une démo se fait ici, sans toucher au rendu.
+ *
+ * @type {Array<{to: string, label: string, description: string,
+ *   icon?: React.ReactElement, variant?: 'outlined'|'contained',
+ *   color?: 'primary'|'secondary'}>}
+ */
+const DEMOS = [
+  {
+    to: '/dataset-selector',
+    label: 'Sélecteur de jeux de données',
+    description: 'Testez différents modes de sélection',
+    icon: <DatasetIcon />,
+  },
+  {
+    to: '/api-demo',
+    label: 'Démonstrations API',
+    description: 'Patterns de requêtes, calculs et cache',
+    icon: <ApiIcon />,
+  },
+  {
+    to: '/map-demo',
+    label: 'Cartographie',
+    description: 'Visualisation géographique des données',
+    icon: <MapIcon />,
+  },
+  {
+    to: '/map-demo-static',
+    label: 'Carte statique',
+    description: 'Démo simple avec données fictives',
+    icon: <LayersIcon />,
+  },
+  {
+    to: '/map-demo-ign-cartefacile',
+    label: 'Carte IGN (carte facile)',
+    description: 'Démo utilisation composant carte facile',
+    icon: <LayersIcon />,
+  },
+  {
+    to: '/map-demo-proportional',
+    label: 'Ronds proportionnels',
+    description: 'Population par département (cercles)',
+  },
+  {
+    to: '/map-demo-choropleth',
+    label: 'Choroplèthe ratio 80+',
+    description: 'Part des 80 ans et plus par département',
+  },
+  {
+    to: '/map-demo-configurable',
+    label: 'Choroplèthe configurable',
+    description: 'Indicateur, niveau géographique et échelle au choix',
+  },
+  {
+    to: '/melodi-benchmark',
+    label: 'Benchmark CSV vs JSON',
+    description: 'Poids et temps de parsing comparés',
+    color: 'secondary',
+  },
+];
+
+/**
+ * Home page component listing the available demonstrations.
  *
  * @returns {React.ReactElement} Home page content
  */
@@ -26,123 +87,9 @@ const Home = () => (
           Démonstrations
         </Typography>
         <Stack direction="row" spacing={2} justifyContent="center" sx={{ mb: 2 }} flexWrap="wrap">
-          <Box textAlign="center">
-            <Button
-              component={RouterLink}
-              to="/dataset-selector"
-              variant="outlined"
-              color="primary"
-              size="large"
-              startIcon={<DatasetIcon />}
-            >
-              Sélecteur de jeux de données
-            </Button>
-            <Typography variant="caption" display="block" sx={{ mt: 1 }} color="text.secondary">
-              Testez différents modes de sélection
-            </Typography>
-          </Box>
-          <Box textAlign="center">
-            <Button
-              component={RouterLink}
-              to="/api-demo"
-              variant="outlined"
-              color="primary"
-              size="large"
-              startIcon={<ApiIcon />}
-            >
-              Démonstrations API
-            </Button>
-            <Typography variant="caption" display="block" sx={{ mt: 1 }} color="text.secondary">
-              Patterns de requêtes, calculs et cache
-            </Typography>
-          </Box>
-          <Box textAlign="center">
-            <Button
-              component={RouterLink}
-              to="/map-demo"
-              variant="contained"
-              color="primary"
-              size="large"
-              startIcon={<MapIcon />}
-            >
-              Cartographie
-            </Button>
-            <Typography variant="caption" display="block" sx={{ mt: 1 }} color="text.secondary">
-              Visualisation géographique des données
-            </Typography>
-          </Box>
-          <Box textAlign="center">
-            <Button
-              component={RouterLink}
-              to="/map-demo-static"
-              variant="outlined"
-              color="secondary"
-              size="large"
-              startIcon={<LayersIcon />}
-            >
-              Carte statique
-            </Button>
-            <Typography variant="caption" display="block" sx={{ mt: 1 }} color="text.secondary">
-              Démo simple avec données fictives
-            </Typography>
-          </Box>
-          <Box textAlign="center">
-            <Button
-              component={RouterLink}
-              to="/map-demo-ign-cartefacile"
-              variant="outlined"
-              color="secondary"
-              size="large"
-              startIcon={<LayersIcon />}
-            >
-              Carte IGN (carte facile)
-            </Button>
-            <Typography variant="caption" display="block" sx={{ mt: 1 }} color="text.secondary">
-              Démo utilisation composant carte facile
-            </Typography>
-          </Box>
-          <Box textAlign="center">
-            <Button
-              component={RouterLink}
-              to="/map-demo-proportional"
-              variant="outlined"
-              color="primary"
-              size="large"
-            >
-              Ronds proportionnels
-            </Button>
-            <Typography variant="caption" display="block" sx={{ mt: 1 }} color="text.secondary">
-              Population par département (cercles)
-            </Typography>
-          </Box>
-          <Box textAlign="center">
-            <Button
-              component={RouterLink}
-              to="/map-demo-choropleth"
-              variant="outlined"
-              color="primary"
-              size="large"
-            >
-              Choroplèthe ratio 80+
-            </Button>
-            <Typography variant="caption" display="block" sx={{ mt: 1 }} color="text.secondary">
-              Part des 80 ans et plus par département
-            </Typography>
-          </Box>
-          <Box textAlign="center">
-            <Button
-              component={RouterLink}
-              to="/map-demo-configurable"
-              variant="contained"
-              color="primary"
-              size="large"
-            >
-              Choroplèthe configurable
-            </Button>
-            <Typography variant="caption" display="block" sx={{ mt: 1 }} color="text.secondary">
-              Indicateur, niveau géographique et échelle au choix
-            </Typography>
-          </Box>
+          {DEMOS.map((demo) => (
+            <DemoLink key={demo.to} sx={{ mt: 3 }} {...demo} />
+          ))}
         </Stack>
       </Box>
     </Paper>

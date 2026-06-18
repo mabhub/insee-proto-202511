@@ -8,6 +8,7 @@ import DatasetIcon from '@mui/icons-material/Dataset';
 import ApiIcon from '@mui/icons-material/Api';
 import MapIcon from '@mui/icons-material/Map';
 import LayersIcon from '@mui/icons-material/Layers';
+import HealthAndSafetyIcon from '@mui/icons-material/HealthAndSafety';
 
 import Layout from './Layout';
 import DemoLink from './DemoLink';
@@ -70,6 +71,13 @@ const DEMOS = [
     to: '/melodi-benchmark',
     label: 'Benchmark CSV vs JSON',
     description: 'Poids et temps de parsing comparés',
+    color: 'secondary',
+  },
+  {
+    to: '/melodi-healthcheck',
+    label: 'Healthcheck Melodi',
+    description: 'Valide les requêtes de la configuration',
+    icon: <HealthAndSafetyIcon />,
     color: 'secondary',
   },
 ];

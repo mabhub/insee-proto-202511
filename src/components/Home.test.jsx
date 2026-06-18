@@ -26,4 +26,9 @@ describe('home component', () => {
     expect(screen.getByRole('link', { name: /Choroplèthe ratio 80\+/i })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /Choroplèthe configurable/i })).toBeInTheDocument();
   });
+
+  it('renders the Melodi healthcheck link', () => {
+    renderHome();
+    expect(screen.getByRole('link', { name: /Healthcheck Melodi/i })).toBeInTheDocument();
+  });
 });

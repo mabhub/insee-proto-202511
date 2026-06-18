@@ -1,5 +1,5 @@
-import { API_CONFIG } from '../config/api';
 import { normalizeResponse } from '../helpers/dataHelpers';
+import { buildDataUrl } from '../helpers/melodiParams';
 
 /**
  * Fetch data from Melodi API with optional query parameters
@@ -8,14 +8,7 @@ import { normalizeResponse } from '../helpers/dataHelpers';
  * @returns {Promise<Object>} API response data
  */
 const fetchData = async (datasetId, params = {}) => {
-  const url = new URL(`${API_CONFIG.baseUrl}${API_CONFIG.endpoints.data.byId(datasetId)}`);
-
-  // Add query parameters
-  Object.entries(params).forEach(([key, value]) => {
-    url.searchParams.append(key, value);
-  });
-
-  const response = await fetch(url.toString());
+  const response = await fetch(buildDataUrl(datasetId, params));
 
   if (!response.ok) {
     throw new Error(`Failed to fetch data: ${response.statusText}`);
@@ -118,18 +111,7 @@ export const fetchDataWithMultipleFilters = async (
   params = {},
   { onResponseStart, onProgress } = {},
 ) => {
-  const url = new URL(`${API_CONFIG.baseUrl}${API_CONFIG.endpoints.data.byId(datasetId)}`);
-
-  // Handle array parameters (add multiple times)
-  Object.entries(params).forEach(([key, value]) => {
-    if (Array.isArray(value)) {
-      value.forEach(v => url.searchParams.append(key, v));
-    } else {
-      url.searchParams.append(key, value);
-    }
-  });
-
-  const response = await fetch(url.toString());
+  const response = await fetch(buildDataUrl(datasetId, params));
 
   if (!response.ok) {
     throw new Error(`Failed to fetch data: ${response.statusText}`);

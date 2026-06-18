@@ -1,5 +1,12 @@
-import { normalizeResponse } from '../helpers/dataHelpers';
+import { normalizeCsvResponse } from '../helpers/dataHelpers';
 import { buildDataUrl } from '../helpers/melodiParams';
+
+// L'app télécharge les données au format CSV (endpoint /to-csv) plutôt qu'en
+// JSON : le corps est nettement plus léger (cf. page /melodi-benchmark) pour un
+// temps de parsing comparable. La normalisation CSV (normalizeCsvResponse)
+// produit la même forme d'observations à plat que la voie JSON, donc le reste
+// de l'app (hooks, computeIndicator, useMapData) est inchangé.
+const USE_CSV = true;
 
 /**
  * Fetch data from Melodi API with optional query parameters
@@ -8,14 +15,13 @@ import { buildDataUrl } from '../helpers/melodiParams';
  * @returns {Promise<Object>} API response data
  */
 const fetchData = async (datasetId, params = {}) => {
-  const response = await fetch(buildDataUrl(datasetId, params));
+  const response = await fetch(buildDataUrl(datasetId, params, { csv: USE_CSV }));
 
   if (!response.ok) {
     throw new Error(`Failed to fetch data: ${response.statusText}`);
   }
 
-  const data = await response.json();
-  return normalizeResponse(data);
+  return normalizeCsvResponse(await response.text());
 };
 
 /**
@@ -111,7 +117,7 @@ export const fetchDataWithMultipleFilters = async (
   params = {},
   { onResponseStart, onProgress } = {},
 ) => {
-  const response = await fetch(buildDataUrl(datasetId, params));
+  const response = await fetch(buildDataUrl(datasetId, params, { csv: USE_CSV }));
 
   if (!response.ok) {
     throw new Error(`Failed to fetch data: ${response.statusText}`);
@@ -119,8 +125,8 @@ export const fetchDataWithMultipleFilters = async (
 
   onResponseStart?.();
 
-  const data = onProgress
-    ? JSON.parse(await readBodyWithProgress(response, onProgress))
-    : await response.json();
-  return normalizeResponse(data);
+  const text = onProgress
+    ? await readBodyWithProgress(response, onProgress)
+    : await response.text();
+  return normalizeCsvResponse(text);
 };

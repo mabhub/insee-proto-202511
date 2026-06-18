@@ -8,6 +8,15 @@
 export const normalizeObservation = (obs, geoLabelsMap = null) => {
   if (!obs) return null;
 
+  // Idempotence : une observation déjà à plat (issue de normalizeCsvResponse,
+  // sans bloc `dimensions`) ne doit pas être re-décomposée — on se contente de
+  // (ré)appliquer le libellé géographique si une map de labels est fournie.
+  if (!obs.dimensions && obs.GEO_FULL !== undefined) {
+    return geoLabelsMap?.get(obs.GEO_FULL)
+      ? { ...obs, GEO_LIB: geoLabelsMap.get(obs.GEO_FULL) }
+      : obs;
+  }
+
   // Extract GEO information
   const geoFull = obs.dimensions?.GEO || '';
   const geoParts = geoFull.split('-');
@@ -93,4 +102,55 @@ export const normalizeResponse = (response, geoLabelsMap = null) => {
     ...response,
     observations: response.observations.map(obs => normalizeObservation(obs, geoLabelsMap)),
   };
+};
+
+// Découpe une ligne CSV Melodi (séparateur ';', valeurs chaîne entre
+// guillemets) en cellules dé-quotées. Parseur minimal : les valeurs Melodi ne
+// contiennent ni ';' ni '"' échappé.
+const splitCsvLine = (line) =>
+  line.split(';').map((cell) => (cell.charCodeAt(0) === 34 ? cell.slice(1, -1) : cell));
+
+/**
+ * Normalize a Melodi /to-csv response body into the same flat observation
+ * shape as normalizeResponse(JSON).
+ *
+ * The CSV layout differs from the JSON one: GEO already holds the bare code
+ * (e.g. "56") and GEO_OBJECT is a dedicated column ("DEP"), whereas the JSON
+ * GEO is composite ("2022-DEP-56"). So GEO/GEO_OBJECT are read straight from
+ * their columns, and GEO_FULL is rebuilt as "millésime-niveau-code" to keep the
+ * geoLabelsMap lookup (keyed by GEO_FULL) working. Every other column is kept
+ * as-is alongside, and OBS_VALUE is coerced to a number (null when empty).
+ *
+ * @param {string} text - Raw CSV body (BOM-prefixed, ';'-separated)
+ * @param {Map<string, string>} [geoLabelsMap] - Optional GEO_FULL → label map
+ * @returns {{observations: Array<Object>}} Response with normalized observations
+ */
+export const normalizeCsvResponse = (text, geoLabelsMap = null) => {
+  const lines = text.split('\n');
+  if (lines.length < 2) return { observations: [] };
+
+  // L'en-tête peut porter un BOM UTF-8 en tête de première cellule.
+  const header = splitCsvLine(lines[0].replace(/^﻿/, ''));
+  const observations = [];
+
+  for (let i = 1; i < lines.length; i++) {
+    if (!lines[i]) continue; // lignes vides (fin de corps notamment)
+    const cells = splitCsvLine(lines[i]);
+    const row = {};
+    for (let c = 0; c < header.length; c++) row[header[c]] = cells[c] ?? '';
+
+    const geo = row.GEO ?? '';
+    const geoObject = row.GEO_OBJECT ?? '';
+    const timePeriod = row.TIME_PERIOD ?? '';
+    const geoFull = [timePeriod, geoObject, geo].filter(Boolean).join('-');
+
+    row.GEO = geo;
+    row.GEO_OBJECT = geoObject;
+    row.GEO_FULL = geoFull;
+    row.GEO_LIB = geoLabelsMap?.get(geoFull) || `${geoObject} ${geo}`.trim();
+    row.OBS_VALUE = row.OBS_VALUE === '' ? null : Number(row.OBS_VALUE);
+    observations.push(row);
+  }
+
+  return { observations };
 };

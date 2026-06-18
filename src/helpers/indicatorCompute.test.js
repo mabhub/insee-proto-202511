@@ -80,3 +80,36 @@ describe('computeIndicator', () => {
     expect(lookup.get('75').value).toBe(10);
   });
 });
+
+describe('computeIndicator (formule raw)', () => {
+  const rawFormula = { type: 'raw', select: { AGE: '_T', SEX: '_T' } };
+  const observations = [
+    { AGE: '_T', SEX: '_T', GEO: '56', OBS_VALUE: 776103, GEO_LIB: 'Morbihan' },
+    { AGE: '_T', SEX: '_T', GEO: '75', OBS_VALUE: 2100000, GEO_LIB: 'Paris' },
+    // Modalité hors sélection : ne doit pas être retenue.
+    { AGE: 'Y_LT20', SEX: '_T', GEO: '56', OBS_VALUE: 166000, GEO_LIB: 'Morbihan' },
+  ];
+
+  it('retient la valeur brute par GEO des observations correspondant à la clause', () => {
+    const { lookup, stops } = computeIndicator(observations, rawFormula);
+    expect(lookup.get('56')).toEqual({ value: 776103, label: 'Morbihan' });
+    expect(lookup.get('75')).toEqual({ value: 2100000, label: 'Paris' });
+    expect(stops).toEqual({ min: 776103, max: 2100000 });
+  });
+
+  it('ignore les observations sans OBS_VALUE', () => {
+    const { lookup } = computeIndicator(
+      [{ AGE: '_T', SEX: '_T', GEO: '01', OBS_VALUE: null, GEO_LIB: 'Ain' }],
+      rawFormula,
+    );
+    expect(lookup.has('01')).toBe(false);
+  });
+
+  it('retient toutes les observations si select est absent', () => {
+    const { lookup } = computeIndicator(
+      [{ GEO: '01', OBS_VALUE: 42, GEO_LIB: 'Ain' }],
+      { type: 'raw' },
+    );
+    expect(lookup.get('01').value).toBe(42);
+  });
+});

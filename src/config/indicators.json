@@ -4,6 +4,7 @@
     "title": "[RP] Part de la population âgée de moins de 20 ans",
     "datasetId": "DS_RP_POPULATION_PRINC",
     "filter": "SEX=_T&AGE=_T&AGE=Y_LT20&TIME_PERIOD=2022",
+    "display": "choropleth",
     "formula": {
       "type": "ratio",
       "numerator": {
@@ -27,6 +28,7 @@
       ],
       "TIME_PERIOD": "2022"
     },
+    "display": "choropleth",
     "formula": {
       "type": "ratio",
       "numerator": {
@@ -50,6 +52,7 @@
       ],
       "TIME_PERIOD": "2025"
     },
+    "display": "choropleth",
     "formula": {
       "type": "ratio",
       "numerator": {
@@ -73,6 +76,7 @@
       ],
       "TIME_PERIOD": "2025"
     },
+    "display": "choropleth",
     "formula": {
       "type": "ratio",
       "numerator": {
@@ -96,6 +100,7 @@
         "AZ"
       ]
     },
+    "display": "choropleth",
     "formula": {
       "type": "ratio",
       "numerator": {
@@ -108,7 +113,7 @@
     "unit": "%"
   },
   {
-    "id": "part-effectif-agri-flores",
+    "id": "part-etablissements-sans-salarie-flores",
     "title": "[Flores] Part des établissements sans salarié",
     "datasetId": "DS_FLORES_A5",
     "filter": {
@@ -119,6 +124,7 @@
         "E0"
       ]
     },
+    "display": "choropleth",
     "formula": {
       "type": "ratio",
       "numerator": {
@@ -129,8 +135,20 @@
       }
     },
     "unit": "%"
+  },
+  {
+    "id": "population-totale-2022",
+    "title": "[RP] Population totale 2022 (ronds proportionnels)",
+    "datasetId": "DS_RP_POPULATION_PRINC",
+    "filter": "SEX=_T&AGE=_T&TIME_PERIOD=2022",
+    "display": "bubble",
+    "formula": {
+      "type": "raw",
+      "select": {
+        "AGE": "_T",
+        "SEX": "_T"
+      }
+    },
+    "unit": "hab."
   }
-
-  
-
 ]

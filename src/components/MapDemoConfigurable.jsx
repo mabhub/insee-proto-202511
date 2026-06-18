@@ -44,7 +44,12 @@ import MapLayersChoropleth, {
   buildFillDataLayerId,
 } from './MapLayersChoropleth';
 import MapLegendChoropleth from './MapLegendChoropleth';
+import MapLayersProportional from './MapLayersProportional';
+import MapLegendProportional from './MapLegendProportional';
 import indicators from '../config/indicators.json';
+
+// Couche cible du clic en mode ronds proportionnels (cf. MapLayersProportional).
+const BUBBLE_LAYER_ID = 'dep-circles';
 
 const GEO_LEVELS = Object.keys(GEO_LEVEL_TO_SOURCE_LAYER); // ['COM', 'EPCI', 'DEP']
 const GEO_LEVEL_LABELS = {
@@ -157,15 +162,24 @@ const MapDemoConfigurable = () => {
     [indicatorId],
   );
 
+  // Représentation pilotée par la config (indicators.json) : choroplèthe
+  // (surfaces colorées, multi-niveaux) ou ronds proportionnels (valeur absolue).
+  const isBubble = indicator.display === 'bubble';
+
+  // Les ronds proportionnels s'appuient sur la couche PMTiles "dep_centroid",
+  // disponible au seul niveau département : en mode bubble on force donc DEP
+  // (le sélecteur de niveau est masqué côté UI).
+  const effectiveGeoLevel = isBubble ? 'DEP' : geoLevel;
+
   // Build query params: indicator filter + GEO level.
   // COM (~35k communes) needs maxResult=100000 to bypass the default 10k cap,
   // otherwise multi-value filters (e.g. AGE=_T+Y_LT20) return only one of the
   // values and the ratio cannot be computed.
   const queryParams = useMemo(() => {
-    const base = { ...normalizeFilter(indicator.filter), GEO: geoLevel };
-    if (geoLevel === 'COM') base.maxResult = 100000;
+    const base = { ...normalizeFilter(indicator.filter), GEO: effectiveGeoLevel };
+    if (effectiveGeoLevel === 'COM') base.maxResult = 100000;
     return base;
-  }, [indicator, geoLevel]);
+  }, [indicator, effectiveGeoLevel]);
 
   const [downloadedBytes, setDownloadedBytes] = useState(0);
   const [responseStarted, setResponseStarted] = useState(false);
@@ -263,13 +277,15 @@ const MapDemoConfigurable = () => {
       if (timeoutId !== null) clearTimeout(timeoutId);
       if (detach) detach();
     };
-  }, [phase, lookup, geoLevel, scale]);
+  }, [phase, lookup, effectiveGeoLevel, scale]);
 
-  const fillDataLayerId = buildFillDataLayerId(geoLevel);
+  const fillDataLayerId = buildFillDataLayerId(effectiveGeoLevel);
+  // Couche cliquable selon la représentation courante.
+  const interactiveLayerId = isBubble ? BUBBLE_LAYER_ID : fillDataLayerId;
 
   const handleClick = (evt) => {
     const features = mapRef.current?.queryRenderedFeatures(evt.point, {
-      layers: [fillDataLayerId],
+      layers: [interactiveLayerId],
     });
     setPopupInfo(buildPopupInfo(features, lookup, evt.lngLat));
   };
@@ -306,23 +322,34 @@ const MapDemoConfigurable = () => {
               </Select>
             </FormControl>
 
-            <FormControl fullWidth size="small">
-              <InputLabel id="geo-level-label">Niveau géographique</InputLabel>
-              <Select
-                labelId="geo-level-label"
-                label="Niveau géographique"
-                value={geoLevel}
-                onChange={(e) => setGeoLevel(e.target.value)}
-              >
-                {GEO_LEVELS.map((level) => (
-                  <MenuItem key={level} value={level}>
-                    {GEO_LEVEL_LABELS[level]}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            {/* Niveau géographique : choroplèthe seulement (les ronds
+                proportionnels sont figés au niveau département). */}
+            {!isBubble && (
+              <FormControl fullWidth size="small">
+                <InputLabel id="geo-level-label">Niveau géographique</InputLabel>
+                <Select
+                  labelId="geo-level-label"
+                  label="Niveau géographique"
+                  value={geoLevel}
+                  onChange={(e) => setGeoLevel(e.target.value)}
+                >
+                  {GEO_LEVELS.map((level) => (
+                    <MenuItem key={level} value={level}>
+                      {GEO_LEVEL_LABELS[level]}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            )}
+            {isBubble && (
+              <Typography variant="caption" color="text.secondary">
+                Ronds proportionnels — niveau département.
+              </Typography>
+            )}
           </Stack>
 
+            {/* Échelle des classes : pertinente uniquement pour la choroplèthe. */}
+            {!isBubble && (
             <Box>
               <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
                 Échelle des classes
@@ -344,6 +371,7 @@ const MapDemoConfigurable = () => {
                 </Typography>
               )}
             </Box>
+            )}
 
           {phase !== 'ready' && (
             <LoadProgress
@@ -378,20 +406,24 @@ const MapDemoConfigurable = () => {
             onClick={handleClick}
             style={{ width: '100%', height: '100%' }}
             mapStyle={mapStyles.desaturated}
-            interactiveLayerIds={[fillDataLayerId]}
+            interactiveLayerIds={[interactiveLayerId]}
           >
             <MyMapSelectorControl />
             <GeolocateControl />
             <FullscreenControl />
             <NavigationControl />
             <ScaleControl />
-            <MapLayersChoropleth
-              key={geoLevel}
-              dataLookup={lookup}
-              ratioStops={stops}
-              geoLevel={geoLevel}
-              scale={scale}
-            />
+            {isBubble ? (
+              <MapLayersProportional dataLookup={lookup} colorStops={stops} />
+            ) : (
+              <MapLayersChoropleth
+                key={effectiveGeoLevel}
+                dataLookup={lookup}
+                ratioStops={stops}
+                geoLevel={effectiveGeoLevel}
+                scale={scale}
+              />
+            )}
 
             {popupInfo && (
               <Popup
@@ -407,13 +439,22 @@ const MapDemoConfigurable = () => {
                   {popupInfo.label}
                 </Typography>
                 <Typography variant="body2">
-                  {popupInfo.value?.toFixed(2)} {indicator.unit}
+                  {isBubble
+                    ? `${popupInfo.value?.toLocaleString('fr-FR')} ${indicator.unit}`
+                    : `${popupInfo.value?.toFixed(2)} ${indicator.unit}`}
                 </Typography>
               </Popup>
             )}
           </MapGL>
 
-          {stops && (
+          {stops && isBubble && (
+            <MapLegendProportional
+              minValue={stops.min}
+              maxValue={stops.max}
+              territoryCount={lookup.size}
+            />
+          )}
+          {stops && !isBubble && (
             <MapLegendChoropleth
               minValue={stops.min}
               maxValue={stops.max}

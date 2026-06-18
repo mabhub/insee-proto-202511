@@ -46,8 +46,29 @@ const computeRatio = (observations, formula) => {
   return lookup;
 };
 
+/**
+ * Compute a raw-value indicator: the observation's OBS_VALUE itself, grouped by
+ * GEO. Used for absolute-value representations (e.g. proportional circles),
+ * where a ratio would be meaningless. An optional `select` clause keeps only the
+ * matching modality (e.g. AGE=_T, SEX=_T); omitting it keeps every observation.
+ * @param {Array<Object>} observations - Normalized observations
+ * @param {{select?: Object}} formula - Raw formula descriptor
+ * @returns {Map<string, {value: number, label: string}>} GEO → raw value
+ */
+const computeRaw = (observations, formula) => {
+  const select = formula.select ?? {};
+  const lookup = new Map();
+  for (const obs of observations) {
+    if (obs.OBS_VALUE == null) continue;
+    if (!matchesClause(obs, select)) continue;
+    lookup.set(obs.GEO, { value: obs.OBS_VALUE, label: obs.GEO_LIB });
+  }
+  return lookup;
+};
+
 const FORMULA_HANDLERS = {
   ratio: computeRatio,
+  raw: computeRaw,
 };
 
 /**

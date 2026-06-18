@@ -37,6 +37,7 @@ import 'carte-facile/carte-facile.css';
 import { useDataWithMultipleFilters } from '../hooks/useData';
 import { usePMTilesProtocol } from '../hooks/usePMTilesProtocol';
 import { computeIndicator } from '../helpers/indicatorCompute';
+import { normalizeFilter } from '../helpers/melodiParams';
 import { buildPopupInfo } from '../helpers/mapHelpers';
 import MapLayersChoropleth, {
   GEO_LEVEL_TO_SOURCE_LAYER,
@@ -161,7 +162,7 @@ const MapDemoConfigurable = () => {
   // otherwise multi-value filters (e.g. AGE=_T+Y_LT20) return only one of the
   // values and the ratio cannot be computed.
   const queryParams = useMemo(() => {
-    const base = { ...indicator.filter, GEO: geoLevel };
+    const base = { ...normalizeFilter(indicator.filter), GEO: geoLevel };
     if (geoLevel === 'COM') base.maxResult = 100000;
     return base;
   }, [indicator, geoLevel]);

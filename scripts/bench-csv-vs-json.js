@@ -23,7 +23,7 @@ import { readFile } from 'node:fs/promises';
 import { gzipSync } from 'node:zlib';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
-import { buildDataUrl } from '../src/helpers/melodiParams';
+import { buildDataUrl, normalizeFilter } from '../src/helpers/melodiParams';
 import { parseJson, parseCsv } from '../src/helpers/benchMelodi';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -96,7 +96,7 @@ const main = async () => {
   const rows = [];
   for (const ind of indicators) {
     for (const level of LEVELS) {
-      const params = { ...ind.filter, GEO: level };
+      const params = { ...normalizeFilter(ind.filter), GEO: level };
       if (level === 'COM') params.maxResult = COM_MAX_RESULT;
 
       const [json, csv] = await Promise.all([

@@ -35,6 +35,7 @@ import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 
 import indicators from '../config/indicators.json';
 import { measureFormat } from '../helpers/benchMelodi';
+import { normalizeFilter } from '../helpers/melodiParams';
 import { useAbortOnUnmount } from '../hooks/useAbortOnUnmount';
 import BenchBars, { formatBytes, formatMs } from './BenchBars';
 
@@ -57,7 +58,7 @@ const RUNS = 8;
  * @returns {Object} Paramètres de requête
  */
 const buildParams = (indicator, geoLevel, comMaxResult) => {
-  const params = { ...indicator.filter, GEO: geoLevel };
+  const params = { ...normalizeFilter(indicator.filter), GEO: geoLevel };
   if (geoLevel === 'COM') params.maxResult = comMaxResult;
   return params;
 };

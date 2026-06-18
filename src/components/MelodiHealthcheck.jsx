@@ -33,7 +33,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ErrorIcon from '@mui/icons-material/Error';
 
 import indicators from '../config/indicators.json';
-import { buildDataUrl } from '../helpers/melodiParams';
+import { buildDataUrl, normalizeFilter } from '../helpers/melodiParams';
 import { useAbortOnUnmount } from '../hooks/useAbortOnUnmount';
 
 // Niveaux géographiques exploités par l'app (REG absent du PMTiles courant).
@@ -61,7 +61,11 @@ const buildProbes = () =>
       title: ind.title,
       datasetId: ind.datasetId,
       geoLevel,
-      url: buildDataUrl(ind.datasetId, { ...ind.filter, GEO: geoLevel, maxResult: PROBE_MAX_RESULT }),
+      url: buildDataUrl(ind.datasetId, {
+        ...normalizeFilter(ind.filter),
+        GEO: geoLevel,
+        maxResult: PROBE_MAX_RESULT,
+      }),
     })),
   );
 

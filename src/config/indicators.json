@@ -3,14 +3,7 @@
     "id": "part-de-la-population-agee-de-moins-de-20-ans",
     "title": "[RP] Part de la population âgée de moins de 20 ans",
     "datasetId": "DS_RP_POPULATION_PRINC",
-    "filter": {
-      "SEX": "_T",
-      "AGE": [
-        "_T",
-        "Y_LT20"
-      ],
-      "TIME_PERIOD": "2022"
-    },
+    "filter": "SEX=_T&AGE=_T&AGE=Y_LT20&TIME_PERIOD=2022",
     "formula": {
       "type": "ratio",
       "numerator": {

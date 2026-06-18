@@ -11,6 +11,7 @@
     "test:coverage": "vitest --coverage",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix",
+    "bench:csv": "vite-node scripts/bench-csv-vs-json.js",
     "start": "vite",
     "version": "git changelog -n -t $npm_package_version && git add CHANGELOG.md"
   },
@@ -39,6 +40,7 @@
     "jsdom": "^27.3.0",
     "oxlint": "^1.32.0",
     "terser": "^5.44.1",
+    "vite-node": "^6.0.0",
     "vitest": "^4.0.15"
   }
 }

@@ -47,7 +47,7 @@ describe('CHOROPLETH_COLORS', () => {
 
   it('are valid CSS color strings', () => {
     CHOROPLETH_COLORS.forEach(color => {
-      expect(color).toMatch(/^#[0-9a-f]{6}$/i);
+      expect(color).toMatch(/^rgb\(\d+, \d+, \d+\)$/);
     });
   });
 });
@@ -115,6 +115,28 @@ describe('buildStepExpression', () => {
 
     const uniqueColors = new Set(assignedColors);
     expect(uniqueColors.size).toBe(5);
+  });
+});
+
+describe('FEATURE_STATE_COLOR_EXPRESSION', () => {
+  it('est une expression case gardée sur feature-state', () => {
+    expect(Array.isArray(FEATURE_STATE_COLOR_EXPRESSION)).toBe(true);
+    expect(FEATURE_STATE_COLOR_EXPRESSION[0]).toBe('case');
+    // Garde : feature-state absent → repli (pas de classe 0 par défaut)
+    expect(FEATURE_STATE_COLOR_EXPRESSION[1]).toEqual([
+      '==', ['feature-state', 'classIndex'], null,
+    ]);
+    expect(FEATURE_STATE_COLOR_EXPRESSION[2]).toBe('rgb(204, 204, 204)');
+  });
+
+  it('mappe les 5 classes vers CHOROPLETH_COLORS', () => {
+    const matchExpr = FEATURE_STATE_COLOR_EXPRESSION[3];
+    expect(matchExpr[0]).toBe('match');
+    expect(matchExpr[1]).toEqual(['feature-state', 'classIndex']);
+    for (let i = 0; i < 5; i++) {
+      const pos = matchExpr.indexOf(i);
+      expect(matchExpr[pos + 1]).toBe(CHOROPLETH_COLORS[i]);
+    }
   });
 });
 

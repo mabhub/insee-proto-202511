@@ -57,8 +57,33 @@ export const interpolateColor = (ratio) => {
  * Palette 5 classes pour choroplèthe discrète (rouge progressif).
  * Correspond aux 5 niveaux produits par buildStepExpression.
  */
-export const CHOROPLETH_COLORS = ['rgb(255, 185, 187)', 'rgb(251, 90, 90)', 
+export const CHOROPLETH_COLORS = ['rgb(255, 185, 187)', 'rgb(251, 90, 90)',
   'rgb(233, 20, 34)', 'rgb(196, 16, 29)', 'rgb(120, 8, 15)'];
+
+/**
+ * Expression MapLibre constante pour la coloration choroplèthe par feature-state.
+ * L'indice de classe (0..4) est porté par le feature-state 'classIndex', posé par
+ * useChoroplethFeatureState. Ne dépend d'aucune donnée → jamais reconstruite, pas
+ * de retesselation au changement d'échelle/indicateur (levier 4).
+ *
+ * Le garde `== null` en tête est indispensable : un `to-number(feature-state, -1)`
+ * renverrait 0 pour une feature sans state (to-number(null) === 0) et la colorierait
+ * à tort en classe 0. Ici, feature sans state → repli gris.
+ */
+export const FEATURE_STATE_COLOR_EXPRESSION = [
+  'case',
+  ['==', ['feature-state', 'classIndex'], null], 'rgb(204, 204, 204)',
+  [
+    'match',
+    ['feature-state', 'classIndex'],
+    0, CHOROPLETH_COLORS[0],
+    1, CHOROPLETH_COLORS[1],
+    2, CHOROPLETH_COLORS[2],
+    3, CHOROPLETH_COLORS[3],
+    4, CHOROPLETH_COLORS[4],
+    'rgb(204, 204, 204)',
+  ],
+];
 
 /**
  * Calcule les bornes des 5 classes choroplèthe selon l'échelle demandée.
@@ -122,18 +147,11 @@ export const buildClassIndexLookup = (dataLookup, ratioStops, { scale = 'linear'
 export const buildStepExpression = (dataLookup, ratioStops, { scale = 'linear' } = {}) => {
   if (!dataLookup.size || !ratioStops) return '#e0e0e0';
 
-  const allBreaks = computeClassBreaks(ratioStops, scale);
-  // 4 frontières internes pour assigner les 5 classes 0..4
-  const innerBreaks = allBreaks.slice(1, 5);
-
+  const classIndex = buildClassIndexLookup(dataLookup, ratioStops, { scale });
   return [
     'match',
     ['to-string', ['get', 'GEO']],
-    ...Array.from(dataLookup.entries()).flatMap(([code, { value }]) => {
-      // Compte combien de seuils la valeur dépasse → indice de classe 0..4
-      const idx = innerBreaks.filter((b) => value >= b).length;
-      return [code, CHOROPLETH_COLORS[idx]];
-    }),
-    'rgb(204, 204, 204)', // Couleur des entités sans donnée
+    ...Array.from(classIndex.entries()).flatMap(([code, idx]) => [code, CHOROPLETH_COLORS[idx]]),
+    '#e0e0e0', // Couleur des entités sans donnée
   ];
 };

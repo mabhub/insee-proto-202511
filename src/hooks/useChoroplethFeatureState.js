@@ -23,6 +23,23 @@ export const applyFeatureStates = (map, sourceId, sourceLayer, classIndexLookup)
 };
 
 /**
+ * Purge les feature-state du niveau puis pose le lookup courant — mais seulement si la
+ * source existe déjà dans le style. La source PMTiles est ajoutée par <Source> de façon
+ * asynchrone : au premier montage `removeFeatureState` lèverait sinon
+ * "The source '…' does not exist in the map's style". No-op si map/source absents.
+ *
+ * @param {object|null} map - Instance MapLibre (getMap())
+ * @param {string} sourceId - Id de la source vectorielle
+ * @param {string} sourceLayer - Nom de la source-layer
+ * @param {Map<string, number>} classIndexLookup - code → indice de classe 0..4
+ */
+export const resetAndApplyFeatureStates = (map, sourceId, sourceLayer, classIndexLookup) => {
+  if (!map || !map.getSource(sourceId)) return;
+  map.removeFeatureState({ source: sourceId, sourceLayer });
+  applyFeatureStates(map, sourceId, sourceLayer, classIndexLookup);
+};
+
+/**
  * Applique les indices de classe via feature-state et les maintient à jour :
  * - pose initiale dès que map + lookup sont prêts ;
  * - réapplication débouncée (rAF) sur chaque 'sourcedata' de notre source, pour
@@ -49,9 +66,10 @@ export const useChoroplethFeatureState = ({ map, sourceId, sourceLayer, classInd
       });
     };
 
-    // Purge les states d'un lookup précédent, puis pose le lookup courant.
-    map.removeFeatureState({ source: sourceId, sourceLayer });
-    applyFeatureStates(map, sourceId, sourceLayer, classIndexLookup);
+    // La source PMTiles est ajoutée par <Source> de façon asynchrone : au premier
+    // montage elle n'existe pas encore. resetAndApplyFeatureStates no-op alors ;
+    // la pose se fera au premier 'sourcedata' ci-dessous.
+    resetAndApplyFeatureStates(map, sourceId, sourceLayer, classIndexLookup);
 
     // Réapplique quand de nouvelles tuiles de NOTRE source arrivent.
     const handleSourceData = (e) => {

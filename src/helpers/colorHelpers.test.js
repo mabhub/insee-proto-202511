@@ -5,6 +5,8 @@ import {
   buildStepExpression,
   buildProportionalCircleExpression,
   computeClassBreaks,
+  buildClassIndexLookup,
+  FEATURE_STATE_COLOR_EXPRESSION,
 } from './colorHelpers';
 
 describe('interpolateColor', () => {
@@ -113,6 +115,51 @@ describe('buildStepExpression', () => {
 
     const uniqueColors = new Set(assignedColors);
     expect(uniqueColors.size).toBe(5);
+  });
+});
+
+describe('buildClassIndexLookup', () => {
+  it('retourne une Map vide si dataLookup est vide', () => {
+    expect(buildClassIndexLookup(new Map(), { min: 0, max: 100 }).size).toBe(0);
+  });
+
+  it('retourne une Map vide si ratioStops est null', () => {
+    const lookup = new Map([['01', { value: 50, label: 'Ain' }]]);
+    expect(buildClassIndexLookup(lookup, null).size).toBe(0);
+  });
+
+  it('assigne la classe 0 au minimum et 4 au maximum (linéaire)', () => {
+    const lookup = new Map([
+      ['01', { value: 0, label: 'A' }],
+      ['02', { value: 100, label: 'B' }],
+    ]);
+    const idx = buildClassIndexLookup(lookup, { min: 0, max: 100 });
+    expect(idx.get('01')).toBe(0);
+    expect(idx.get('02')).toBe(4);
+  });
+
+  it('produit 5 classes distinctes réparties sur la plage (linéaire)', () => {
+    const lookup = new Map([
+      ['01', { value: 0, label: 'A' }],
+      ['02', { value: 25, label: 'B' }],
+      ['03', { value: 50, label: 'C' }],
+      ['04', { value: 75, label: 'D' }],
+      ['05', { value: 100, label: 'E' }],
+    ]);
+    const idx = buildClassIndexLookup(lookup, { min: 0, max: 100 });
+    expect(new Set(idx.values()).size).toBe(5);
+  });
+
+  it('répartit les valeurs sur plusieurs classes en échelle log', () => {
+    const lookup = new Map([
+      ['01', { value: 1, label: 'A' }],
+      ['02', { value: 10, label: 'B' }],
+      ['03', { value: 100, label: 'C' }],
+      ['04', { value: 1000, label: 'D' }],
+      ['05', { value: 100000, label: 'E' }],
+    ]);
+    const idx = buildClassIndexLookup(lookup, { min: 1, max: 100000 }, { scale: 'log' });
+    expect(new Set(idx.values()).size).toBeGreaterThan(2);
   });
 });
 

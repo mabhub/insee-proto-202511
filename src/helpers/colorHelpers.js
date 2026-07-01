@@ -85,6 +85,27 @@ export const computeClassBreaks = ({ min, max }, scale = 'linear') => {
 };
 
 /**
+ * Construit une Map `code → indice de classe (0..4)` selon 5 seuils entre min et max.
+ * Logique de classe partagée avec buildStepExpression, mais sans construire d'expression
+ * MapLibre — consommée par la coloration via feature-state (useChoroplethFeatureState).
+ *
+ * @param {Map<string, {value: number, label: string}>} dataLookup - Données par code court
+ * @param {{min: number, max: number}|null} ratioStops - Bornes min/max
+ * @param {Object} [options]
+ * @param {'linear'|'log'} [options.scale='linear'] - Échelle de découpage
+ * @returns {Map<string, number>} code → indice de classe 0..4 (Map vide si pas de données)
+ */
+export const buildClassIndexLookup = (dataLookup, ratioStops, { scale = 'linear' } = {}) => {
+  if (!dataLookup.size || !ratioStops) return new Map();
+  const innerBreaks = computeClassBreaks(ratioStops, scale).slice(1, 5);
+  const out = new Map();
+  for (const [code, { value }] of dataLookup) {
+    out.set(code, innerBreaks.filter((b) => value >= b).length);
+  }
+  return out;
+};
+
+/**
  * Construit une expression MapLibre `match` qui attribue une couleur de classe
  * à chaque territoire selon 5 seuils entre min et max.
  *

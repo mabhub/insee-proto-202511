@@ -31,4 +31,11 @@ describe('home component', () => {
     renderHome();
     expect(screen.getByRole('link', { name: /Healthcheck Melodi/i })).toBeInTheDocument();
   });
+
+  it('renders the choropleth benchmark link', () => {
+    renderHome();
+    expect(
+      screen.getByRole('link', { name: /Benchmark coloration/i }),
+    ).toBeInTheDocument();
+  });
 });

@@ -74,6 +74,12 @@ const DEMOS = [
     color: 'secondary',
   },
   {
+    to: '/bench-choropleth',
+    label: 'Benchmark coloration',
+    description: 'match vs feature-state sur les communes',
+    color: 'secondary',
+  },
+  {
     to: '/melodi-healthcheck',
     label: 'Healthcheck Melodi',
     description: 'Valide les requêtes de la configuration',

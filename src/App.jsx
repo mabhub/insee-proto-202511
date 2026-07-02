@@ -15,6 +15,7 @@ import MapDemoChoropleth from './components/MapDemoChoropleth';
 import MapDemoConfigurable from './components/MapDemoConfigurable';
 import MelodiHealthcheck from './components/MelodiHealthcheck';
 import MelodiBenchmark from './components/MelodiBenchmark';
+import BenchChoropleth from './components/BenchChoropleth';
 
 const App = () => (
   <BrowserRouter>
@@ -30,6 +31,7 @@ const App = () => (
       <Route path="/map-demo-configurable" element={<MapDemoConfigurable />} />
       <Route path="/melodi-healthcheck" element={<MelodiHealthcheck />} />
       <Route path="/melodi-benchmark" element={<MelodiBenchmark />} />
+      <Route path="/bench-choropleth" element={<BenchChoropleth />} />
     </Routes>
   </BrowserRouter>
 );

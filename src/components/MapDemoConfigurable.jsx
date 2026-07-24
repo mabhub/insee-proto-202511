@@ -302,7 +302,7 @@ const MapDemoConfigurable = () => {
         {/* Description and controls panel */}
         <Paper elevation={1} sx={{ flex: 1, maxWidth: '35%', p: 3, m: 1, overflowY: 'auto' }}>
           <Typography variant="h4" component="h1" gutterBottom>
-            Cartographie sur API
+            Cartographie sur API Melodi
           </Typography>
 
           <Stack spacing={2} sx={{ mb: 3 }}>

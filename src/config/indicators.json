@@ -1,57 +1,65 @@
 [
   {
-    "id": "part-de-la-population-agee-de-moins-de-20-ans",
-    "title": "[RP] Part de la population âgée de moins de 20 ans",
-    "datasetId": "DS_RP_POPULATION_PRINC",
-    "filter": "SEX=_T&AGE=_T&AGE=Y_LT20&TIME_PERIOD=2022",
-    "display": "choropleth",
+    "id": "population-ref",
+    "title": "[ronds proportionnels] RP - Populations municipale",
+    "datasetId": "DS_POPULATIONS_REFERENCE",
+    "filter": "POPREF_MEASURE=PMUN",
+    "display": "bubble",
     "formula": {
-      "type": "ratio",
-      "numerator": {
-        "AGE": "Y_LT20"
-      },
-      "denominator": {
-        "AGE": "_T"
+      "type": "raw",
+      "select": {
+        "POPREF_MEASURE": "PMUN"
       }
     },
-    "unit": "%"
+    "unit": "habitants"
   },
   {
-    "id": "part-de-la-population-agee-de-80-ans-et-plus",
-    "title": "[RP] Part de la population âgée de 80 ans et plus",
-    "datasetId": "DS_RP_POPULATION_PRINC",
-    "filter": {
-      "SEX": "_T",
-      "AGE": [
-        "_T",
-        "Y_GE80"
-      ],
-      "TIME_PERIOD": "2022"
-    },
-    "display": "choropleth",
+    "id": "electeurs",
+    "title": "[ronds proportionnels] REU - Nombre d'électeurs",
+    "datasetId": "DS_ELECTORAL",
+    "filter": "TIME_PERIOD=2026-02-11&REU_MEASURE=VOTERS&REU_LIST_TYPE=LP&REU_ELECTION_TYPE=MUN",
+    "display": "bubble",
     "formula": {
-      "type": "ratio",
-      "numerator": {
-        "AGE": "Y_GE80"
-      },
-      "denominator": {
-        "AGE": "_T"
+      "type": "raw",
+      "select": {
+        "REU_ELECTION_TYPE": "MUN"
       }
     },
-    "unit": "%"
+    "unit": "électeurs"
+  },
+  {
+    "id": "medecins",
+    "title": "[ronds proportionnels] BPE - Nombre de médecins généralistes",
+    "datasetId": "DS_BPE",
+    "filter": "FACILITY_TYPE=D265",
+    "display": "bubble",
+    "formula": {
+      "type": "raw",
+      "select": {
+        "FACILITY_TYPE": "D265"
+      }
+    },
+    "unit": "médecins généralistes"
+  },
+  {
+    "id": "niveau de vie",
+    "title": "[choroplèthe sans calcul] Filosofi - Niveau de vie médian",
+    "datasetId": "DS_FILOSOFI_CC",
+    "filter": "FILOSOFI_MEASURE=MED_SL",
+    "display": "choropleth",
+    "formula": {
+      "type": "raw",
+      "select": {
+        "FILOSOFI_MEASURE": "MED_SL"
+      }
+    },
+    "unit": "€"
   },
   {
     "id": "part-de-l-industrie-dans-les-creations-d-entreprises",
-    "title": "[SIDE] Part de l'industrie dans les créations d'entreprises",
+    "title": "[choroplèthe avec calcul] SIDE - Part de l'industrie dans les créations d'entreprises",
     "datasetId": "DS_SIDE_CREA_ENT_COM",
-    "filter": {
-      "LEGAL_FORM": "_T",
-      "ACTIVITY": [
-        "_T",
-        "BE"
-      ],
-      "TIME_PERIOD": "2025"
-    },
+    "filter": "LEGAL_FORM=_T&ACTIVITY=_T&ACTIVITY=BE&TIME_PERIOD=2025",
     "display": "choropleth",
     "formula": {
       "type": "ratio",
@@ -66,7 +74,7 @@
   },
   {
     "id": "part-des-activites-immobilieres-dans-les-creations-d",
-    "title": "[SIDE] Part des activités immobilières dans les créations d'entreprises",
+    "title": "[choroplèthe avec calcul] SIDE - Part des activités immobilières dans les créations d'entreprises",
     "datasetId": "DS_SIDE_CREA_ENT_COM",
     "filter": {
       "LEGAL_FORM": "_T",
@@ -90,7 +98,7 @@
   },
   {
     "id": "part-effectif-agri-flores",
-    "title": "[Flores] Part des effectifs salariés de l'agriculture, sylviculture et pêche",
+    "title": "[choroplèthe avec calcul] Flores - Part des effectifs salariés de l'agriculture, sylviculture et pêche",
     "datasetId": "DS_FLORES_A5",
     "filter": {
       "FLORES_MEASURE": "EMPL3112",
@@ -113,42 +121,20 @@
     "unit": "%"
   },
   {
-    "id": "part-etablissements-sans-salarie-flores",
-    "title": "[Flores] Part des établissements sans salarié",
-    "datasetId": "DS_FLORES_A5",
-    "filter": {
-      "FLORES_MEASURE": "UNIT_LOC",
-      "ACTIVITY": "_T",
-      "NUMBER_EMPL": [
-        "_T",
-        "E0"
-      ]
-    },
+    "id": "part-hotels-etoiles",
+    "title": "[choroplèthe avec calcul] Tourisme - Part des hôtels 5 étoiles",
+    "datasetId": "DS_TOUR_CAP",
+    "filter": "UNIT_LOC_RANKING=5&UNIT_LOC_RANKING=_T&TOUR_MEASURE=UNIT_LOC&ACTIVITY=I551",
     "display": "choropleth",
     "formula": {
       "type": "ratio",
       "numerator": {
-        "ACTIVITY": "E0"
+        "UNIT_LOC_RANKING": "5"
       },
       "denominator": {
-        "ACTIVITY": "_T"
+        "UNIT_LOC_RANKING": "_T"
       }
     },
     "unit": "%"
-  },
-  {
-    "id": "population-totale-2022",
-    "title": "[RP] Population totale 2022 (ronds proportionnels)",
-    "datasetId": "DS_RP_POPULATION_PRINC",
-    "filter": "SEX=_T&AGE=_T&TIME_PERIOD=2022",
-    "display": "bubble",
-    "formula": {
-      "type": "raw",
-      "select": {
-        "AGE": "_T",
-        "SEX": "_T"
-      }
-    },
-    "unit": "hab."
   }
 ]

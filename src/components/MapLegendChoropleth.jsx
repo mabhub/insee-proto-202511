@@ -30,9 +30,8 @@ const MapLegendChoropleth = ({
   const breaks = computeClassBreaks({ min: minValue, max: maxValue }, scale);
 
   return (
-    <Paper elevation={3} sx={{ position: 'absolute', bottom: 32, right: 16, p: 2, minWidth: 180, zIndex: 1 }}>
-      <Typography variant="subtitle2" fontWeight="bold" gutterBottom>
-        {title}
+    <Paper elevation={3} sx={{ position: 'absolute', top: 4, left: 4, p: 2, minWidth: 180, zIndex: 1 }}>
+      <Typography variant="subtitle3" fontWeight="bold" gutterBottom>
       </Typography>
       {CHOROPLETH_COLORS.map((color, i) => (
         <Box key={i} sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>

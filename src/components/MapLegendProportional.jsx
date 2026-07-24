@@ -13,7 +13,7 @@ import { Paper, Typography, Box } from '@mui/material';
 const MapLegendProportional = ({ minValue, maxValue, territoryCount }) => (
   <Paper
     elevation={3}
-    sx={{ position: 'absolute', bottom: 32, right: 16, p: 2, minWidth: 160, zIndex: 1 }}
+    sx={{ position: 'absolute', top: 4, left: 4, p: 2, minWidth: 160, zIndex: 1 }}
   >
     <Typography variant="subtitle2" fontWeight="bold" gutterBottom>  
     </Typography>

@@ -15,8 +15,7 @@ const MapLegendProportional = ({ minValue, maxValue, territoryCount }) => (
     elevation={3}
     sx={{ position: 'absolute', bottom: 32, right: 16, p: 2, minWidth: 160, zIndex: 1 }}
   >
-    <Typography variant="subtitle2" fontWeight="bold" gutterBottom>
-      Population 2022
+    <Typography variant="subtitle2" fontWeight="bold" gutterBottom>  
     </Typography>
     <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: 2, mb: 1 }}>
       <svg width="80" height="60" style={{ overflow: 'visible' }}>

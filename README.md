@@ -1,129 +1,76 @@
-# Vite React MUI Template
+# Proto INSEE - cartographie API Melodi
 
-Un template moderne et optimisé pour créer des applications React avec Vite, Material-UI et les meilleures pratiques de développement.
+Prototype de cartographie interactive branché sur [l'API Melodi](https://portail-api.insee.fr/catalog/api/a890b735-159c-4c91-90b7-35159c7c9126/doc)
+(données statistiques locales de l'Insee).
 
-## 🚀 Technologies incluses
+Une série de démos techniques, pas une application finie : chaque page isole une
+question (modes de sélection, patterns de requêtage, rendu cartographique,
+performance) pour évaluer la faisabilité d'une refonte React/Vite.
 
-- **[React 19](https://react.dev/)** - Dernière version avec hooks modernes
-- **[Vite 7](https://vitejs.dev/)** - Build tool rapide et moderne
-- **[Material-UI (MUI) v7](https://mui.com/)** - Composants React avec Material Design
-- **[TanStack Query v5](https://tanstack.com/query)** - Gestion des données et cache intelligent
-- **[React Router v7](https://reactrouter.com/)** - Navigation côté client
-- **[Oxlint](https://oxc.rs/)** - Linter JavaScript/TypeScript ultra-rapide
-
-## ✨ Fonctionnalités
-
-- 🎨 **Thème personnalisable** et support du mode sombre automatique
-- 🛡️ **Error Boundary** pour une gestion d'erreurs
-- 📱 **Design responsive** avec breakpoints Material-UI
-- ⚡ **Configuration optimisée** de TanStack Query avec DevTools
-- 🧪 **Tests unitaires** avec Vitest et React Testing Library
-- 🔧 **Configuration Oxlint complète** avec règles strictes
-- 🎨 **Layout réutilisable** avec AppBar et Footer
-- 🌐 **Support HTTPS** en développement (optionnel)
-- 📦 **Variables d'environnement** avec `.env.example`
-
-## 🛠️ Installation et démarrage
+## Démarrage
 
 ```bash
-# Installation des dépendances
+nvm use          # Node 24, voir .nvmrc
 npm install
-
-# Démarrage en mode développement
-npm run dev
-
-# Build de production
-npm run build
-
-# Aperçu du build
-npm run serve
-
-# Linting
-npm run lint
+npm run dev      # http://localhost:3000
 ```
 
-## 📁 Structure du projet
+Aucune clé d'API n'est nécessaire → l'API Melodi est en accès libre, plafonnée à
+30 requêtes/minute.
+
+## Démonstrations
+
+Toutes accessibles depuis la page d'accueil.
+
+| Route                        | Objet                                                        |
+|------------------------------|--------------------------------------------------------------|
+| `/dataset-selector`          | Trois modes de sélection d'un jeu de données (autocomplete, liste filtrée, grille) |
+| `/api-demo`                  | Patterns de requêtes Melodi, calculs dérivés, comportement du cache |
+| `/map-demo`                  | Visualisation géographique des données d'un dataset          |
+| `/map-demo-static`           | Carte minimale sur données fictives, sans appel réseau       |
+| `/map-demo-ign-cartefacile`  | Fond IGN via le composant `carte-facile`                     |
+| `/map-demo-proportional`     | Ronds proportionnels → population par département            |
+| `/map-demo-choropleth`       | Choroplèthe → part des 80 ans et plus par département        |
+| `/map-demo-configurable`     | Choroplèthe avec indicateur, niveau géographique et échelle au choix |
+| `/melodi-benchmark`          | Comparaison CSV vs JSON (poids et temps de parsing)          |
+| `/bench-choropleth`          | Comparaison des stratégies de coloration `match` vs `setFeatureState` sur les communes |
+| `/melodi-healthcheck`        | Valide que les requêtes de la configuration répondent        |
+
+## Stack
+
+- **React 19** + **Vite 7**, **MUI v7** pour l'UI
+- **TanStack Query v5** pour le fetching et le cache
+- **MapLibre GL** via **react-map-gl**, tuiles vectorielles au format **PMTiles**
+- **carte-facile** pour les fonds IGN (isolé dans son propre chunk Rollup)
+- **Vitest** + React Testing Library, **Oxlint**
+
+## Organisation du code
 
 ```
 src/
-├── components/
-│   ├── ErrorBoundary.jsx   # Gestion globale des erreurs
-│   ├── Layout.jsx          # Layout principal avec AppBar/Footer
-│   ├── Home.jsx            # Page d'accueil exemple
-│   └── Home.test.jsx       # Tests du composant Home
-├── setupTests.js           # Configuration des tests
-├── App.jsx                 # Composant principal avec routing
-└── main.jsx                # Point d'entrée avec providers
+├── components/   # Une démo = un composant de page (+ ses sous-composants)
+├── hooks/        # Wrappers TanStack Query, logique de fetching conditionnel
+├── services/     # Appels à l'API Melodi (catalog, data, range)
+├── helpers/      # Transformations de données, couleurs, paramètres Melodi
+└── config/       # Config API, query keys, définition des indicateurs
 ```
 
-## 🎨 Personnalisation du thème
+Les composants ne parlent jamais directement aux services → toujours via un hook
+de `src/hooks/`.
 
-Le thème Material-UI est configuré dans `src/main.jsx` avec :
+Les fonds cartographiques (`public/*.pmtiles`) sont versionnés dans le dépôt, d'où
+son poids.
 
-- **Mode sombre automatique** basé sur les préférences système
-- **Couleurs personnalisées** (primary: #adb31b, secondary: #ff6b35)
-
-## 🔧 Configuration
-
-### Variables d'environnement
-
-Copiez le fichier `.env.example` en `.env.local` pour personnaliser votre configuration :
+## Scripts
 
 ```bash
-cp .env.example .env.local
+npm run build          # Build de production
+npm run preview        # Servir le build
+npm test               # Tests en mode watch
+npm run test:coverage  # Rapport de couverture
+npm run lint           # Oxlint
+npm run bench:csv      # Benchmark CSV vs JSON en ligne de commande
 ```
 
-Variables disponibles :
-
-- `VITE_APP_TITLE` - Titre de l'application
-- `VITE_API_URL` - URL de votre API backend
-- `VITE_HTTPS` - Active/désactive HTTPS en développement (`true`/`false`)
-
-**Note** : Les variables doivent commencer par `VITE_` pour être accessibles dans l'application.
-
-### HTTPS en développement (optionnel)
-
-Le template inclut une configuration HTTPS pour le développement. Pour l'utiliser :
-
-1. Créez un dossier `~/https/` avec vos certificats SSL
-2. Ajoutez `key.pem` et `cert.pem` dans ce dossier
-3. Définissez `VITE_HTTPS=true` dans votre `.env.local`
-
-### TanStack Query
-
-Configuration par défaut optimisée :
-
-- 1 seul retry en cas d'échec
-- Pas de refetch automatique lors du focus
-- Cache de 5 minutes
-
-## 📝 Scripts disponibles
-
-- `npm run dev` - Serveur de développement
-- `npm run build` - Build de production
-- `npm run preview` - Aperçu du build
-- `npm test` - Lance les tests en mode watch
-- `npm run test:ui` - Interface graphique pour les tests
-- `npm run test:coverage` - Rapport de couverture des tests
-- `npm run lint` - Analyse du code avec Oxlint
-- `npm run lint:fix` - Correction automatique des erreurs
-- `npm run start` - Alias pour `npm run dev`
-
-## 🔍 Bonnes pratiques incluses
-
-- **Composants fonctionnels** avec hooks
-- **Gestion d'erreurs** avec Error Boundary
-- **Accessibilité** avec attributs ARIA appropriés
-- **SEO** avec meta tags optimisés
-- **Performance** avec lazy loading et optimisations
-- **Code quality** avec oxlint
-
-## 🚦 Node.js
-
-Ce projet utilise Node.js version **24** (voir `.nvmrc`).
-
-Si vous utilisez nvm :
-
-```bash
-nvm use
-```
+HTTPS en développement : placer `key.pem` et `cert.pem` dans `~/https/`, puis
+`VITE_HTTPS=true` dans `.env.local` (voir `.env.example`).
